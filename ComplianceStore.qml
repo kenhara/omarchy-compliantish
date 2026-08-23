@@ -33,7 +33,6 @@ QtObject {
   property bool loading: false
   property string lastError: ""
   property string toastText: ""
-  property string pendingCacheBody: ""
   property var notifiedFails: ({})   // code -> YYYY-MM-DD
 
   property string probeBuf: ""
@@ -140,7 +139,6 @@ QtObject {
   }
   readonly property string lastUpdatedText: formatUpdated(store.probedAt)
 
-  signal dataChanged()
   signal checkEnableChanged(string code, bool enabled)
 
   // Full definitions for Checks menu (always five; enabled flags separate).
@@ -176,7 +174,6 @@ QtObject {
     else if (c === "PW") store.enablePasswordManager = on
     else if (c === "AU") store.enableAutoUpdates = on
     else return false
-    store.dataChanged()
     store.checkEnableChanged(c, on)
     store.persistToDisk()
     // Re-probe when turning a check back on so the row is fresh.
@@ -210,7 +207,6 @@ QtObject {
       store.enablePasswordManager = !!opts.enablePasswordManager
     if (opts.enableAutoUpdates !== undefined)
       store.enableAutoUpdates = !!opts.enableAutoUpdates
-    store.dataChanged()
   }
 
   function formatUpdated(iso) {
@@ -255,7 +251,6 @@ QtObject {
     store.probedAt = obj.probedAt || ""
     store.dataSource = source || "probe"
     store.lastError = ""
-    store.dataChanged()
 
     if (store.notifyOnFail)
       store.maybeNotifyFails(prevMap, list)
@@ -309,19 +304,23 @@ QtObject {
 
   function copyText(text) {
     var t = String(text || "")
-    if (!t.length) return false
+    if (!t.length) {
+      store.showToast("Nothing to copy")
+      return false
+    }
     try {
-      if (typeof Quickshell !== "undefined" && Quickshell.clipboard) {
-        Quickshell.clipboard.text = t
+      if (typeof Quickshell !== "undefined" && Quickshell.clipboardText !== undefined) {
+        Quickshell.clipboardText = t
         store.showToast("Copied")
         return true
       }
     } catch (e) {}
-    // Wayland / X11 fallbacks — toast only in copyProc.onExited (no cat swallow)
+    // Shell fallback: wl-copy / xclip / xsel; bash -c (not -lc).
+    // Toast only on copyProc success (onExited) — never claim Copied early.
     copyProc.command = [
-      "bash", "-lc",
-      'printf "%s" "$1" | if command -v wl-copy >/dev/null; then wl-copy; elif command -v xclip >/dev/null; then xclip -selection clipboard; elif command -v xsel >/dev/null; then xsel --clipboard --input; else exit 127; fi',
-      "compliance-copy", t
+      "bash", "-c",
+      't="$1"; if command -v wl-copy >/dev/null 2>&1; then printf "%s" "$t" | wl-copy; elif command -v xclip >/dev/null 2>&1; then printf "%s" "$t" | xclip -selection clipboard; elif command -v xsel >/dev/null 2>&1; then printf "%s" "$t" | xsel --clipboard --input; else exit 127; fi',
+      "st-copy", t
     ]
     copyProc.running = true
     return true
@@ -384,11 +383,11 @@ QtObject {
   }
 
   function persistToDisk(obj) {
+    // FileView.setText mkpath — no mkdir Process race.
     var body = JSON.stringify(obj || buildCacheObject(), null, 2) + "\n"
-    store.pendingCacheBody = body
-    if (ensureCacheDir.running)
-      return
-    ensureCacheDir.running = true
+    try {
+      cacheFile.setText(body)
+    } catch (e) {}
   }
 
   function buildCacheObject() {
@@ -524,25 +523,11 @@ QtObject {
   }
 
   Process {
-    id: ensureCacheDir
-    command: ["mkdir", "-p", store.cacheDir]
-    running: false
-    onExited: function(exitCode, exitStatus) {
-      var body = store.pendingCacheBody
-      store.pendingCacheBody = ""
-      if (!body || !body.length) return
-      try {
-        cacheFile.setText(body)
-      } catch (e) {}
-    }
-  }
-
-  Process {
     id: openUrlProc
     running: false
     onExited: function(exitCode, exitStatus) {
       if (exitCode === 0)
-        store.showToast("Opening config")
+        store.showToast("Opened")
       else
         store.showToast("Open failed")
     }

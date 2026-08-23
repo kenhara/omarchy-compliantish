@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "harris.security-theater",
   "name": "Security Theater",
-  "version": "0.5.1",
+  "version": "0.5.2",
   "author": "Harris Kenny",
   "license": "MIT",
   "description": "Local workstation checks for Omarchy — yes, the name is the joke. Disk encryption, screen lock, antivirus, password manager, automatic updates. Checks menu + schema toggles; all five on by default. Unofficial. No Drata or Vanta API.",

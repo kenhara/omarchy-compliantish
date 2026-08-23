@@ -14,9 +14,9 @@ hover on actionable controls.
 | **ST-05** | MED | Removed `chkrootkit` / `rkhunter` from `AV_PKGS` (rootkit scanners ≠ AV). |
 | **ST-06** | MED | `copyText` / `openConfig`: toast only on real success via Process `onExited`; no `cat >/dev/null` swallow; surfaces “No clipboard tool” / “Copy failed” / “Open failed”. |
 | **ST-07** | MED | Persist `enable*` into cache (`buildCacheObject`); rehydrate in `loadDiskText` / bootstrap so Checks menu survives reload when host settings aren’t writable. Still calls `mirrorSettingsEnable`. |
-| **ST-08** | MED | `persistToDisk` chains write on `ensureCacheDir.onExited` (pending body), fixing mkdir race. |
-| **ST-09** | LOW | Bumped to **0.5.1**; DESIGN.md + docs/preview banner synced. |
-| **ST-10** | LOW | Scrubbed `/workspace/…` paths and public “Quattro” / Space Jockey shipping-name noise from docs; neutralized BarWidget comment. |
+| **ST-08** | MED | Cache write: 0.5.1 chained mkdir+setText; **0.5.2** uses `FileView.setText` only (mkpath, no mkdir race). |
+| **ST-09** | LOW | Bumped to **0.5.2**; DESIGN.md + docs/preview banner synced. |
+| **ST-10** | LOW | Scrubbed agent workspace paths and public “Quattro” / Space Jockey shipping-name noise from docs; neutralized BarWidget comment. |
 | **ST-11** | LOW | LICENSE: unquoted second `Software` (`in the Software without restriction`). |
 | **ST-12** | LOW | REPO.md kept as a short pointer. |
 | **ST-13** | LOW | Hover fill (`containsMouse` + `hoverEnabled`) on Panel / CheckRow actionable buttons. |
@@ -35,3 +35,6 @@ Prefer POSIX character classes (`[[:space:]]`) over GNU `\s` in `grep -E` /
 awk patterns so BusyBox/Alpine-style `grep` behaves the same. Optional full
 `shellcheck scripts/probe.sh` is recommended on maintainer machines; this tree
 does not vendor shellcheck.
+
+## 0.5.2 follow-up
+See [PRE-SHIP.md](PRE-SHIP.md) for the Quattro pre-ship checklist applied after this audit map.

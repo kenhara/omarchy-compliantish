@@ -1,6 +1,6 @@
 # Security Theater — Omarchy plugin (Vanta ∪ Drata workstation checks)
 
-**Status:** implemented v0.5.1 (community plugin; no Drata/Vanta API)  
+**Status:** implemented v0.5.2 (community plugin; no Drata/Vanta API)  
 **Coverage:** union of **Vanta Device Monitor (4)** + **Drata Agent (5)** = **exactly five** local lights  
 **Exemplar lessons:** Omarchy nested `bar-widget` + Panel pattern  
 
@@ -174,7 +174,7 @@ Bar: worst of **enabled** → red if any fail, amber if any unknown and no fails
 
 ## 7. Version notes
 
-### 0.5.1
+### 0.5.2
 - Audit false-PASS hardening (HD / SL / AU); swayidle parse; AV list cleanup; cache/toast/hover polish — see `AUDIT-NOTES.md` / `CHANGELOG.md`
 
 ### 0.5.0

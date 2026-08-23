@@ -11,7 +11,7 @@ Item {
   property color contentForeground: Color.foreground
   property color dimForeground: Qt.darker(contentForeground, 1.45)
   property color surfaceColor: Qt.rgba(contentForeground.r, contentForeground.g, contentForeground.b, 0.06)
-  property string fontFamily: Style.font.family
+  property string fontFamily: "monospace"
 
   readonly property string code: check ? String(check.code || "") : ""
   readonly property string label: check ? String(check.label || "") : ""
@@ -65,7 +65,7 @@ Item {
         Text {
           text: "●"
           color: root.statusColor
-          font.pixelSize: Style.font.size(11)
+          font.pixelSize: Style.font.bodySmall
           anchors.verticalCenter: parent.verticalCenter
         }
 
@@ -78,7 +78,7 @@ Item {
             text: root.label
             color: root.contentForeground
             font.family: root.fontFamily
-            font.pixelSize: Style.font.size(12)
+            font.pixelSize: Style.font.subtitle
             font.bold: true
             elide: Text.ElideRight
           }
@@ -89,7 +89,7 @@ Item {
             color: root.contentForeground
             opacity: 0.45
             font.family: root.fontFamily
-            font.pixelSize: Style.font.size(11)
+            font.pixelSize: Style.font.bodySmall
             wrapMode: Text.Wrap
           }
         }
@@ -108,7 +108,7 @@ Item {
             text: root.status.toUpperCase()
             color: root.statusColor
             font.family: root.fontFamily
-            font.pixelSize: Style.font.size(10)
+            font.pixelSize: Style.font.caption
             font.bold: true
             font.letterSpacing: 0.5
           }
@@ -145,7 +145,7 @@ Item {
             text: "Copy fix"
             color: root.contentForeground
             font.family: root.fontFamily
-            font.pixelSize: Style.font.size(11)
+            font.pixelSize: Style.font.bodySmall
           }
 
           MouseArea {
@@ -174,7 +174,7 @@ Item {
             text: "Open config"
             color: root.contentForeground
             font.family: root.fontFamily
-            font.pixelSize: Style.font.size(11)
+            font.pixelSize: Style.font.bodySmall
           }
 
           MouseArea {

@@ -1,5 +1,7 @@
 # Security Theater
 
+![Security Theater](preview.png)
+
 Local workstation checks for Omarchy — **yes, the name is the joke.** Runs the
 **union of Vanta + Drata workstation agent checks**: exactly **five** read-only
 probes, a visible **Checks** menu, and a recurring local refresh. Native Omarchy
@@ -8,7 +10,7 @@ probes, a visible **Checks** menu, and a recurring local refresh. Native Omarchy
 **ID:** `harris.security-theater`  
 **Author:** Harris Kenny  
 **License:** MIT  
-**Version:** 0.5.1
+**Version:** 0.5.2
 
 Changelog: [CHANGELOG.md](CHANGELOG.md) · Audit fixes: [AUDIT-NOTES.md](AUDIT-NOTES.md)
 
@@ -89,6 +91,7 @@ omarchy-shell shell rescanPlugins
 
 - **Left-click** the bar status (`● 2/5`) to open/close the panel.
 - **Middle-click** re-runs `scripts/probe.sh`.
+- **Right-click** closes the panel.
 - In the panel header: **Checks** opens the enable/disable menu for all five;
   **Refresh** re-runs the probe. Summary shows `auto every 15m` (or your interval).
 - Per-row **Copy fix** / **Open config** (screen lock), plus **Copy summary**.
@@ -100,6 +103,7 @@ omarchy-shell shell rescanPlugins
 |-------|--------|
 | Left-click bar | Toggle panel |
 | Middle-click bar | Refresh probe |
+| Right-click bar | Close panel |
 | Checks | Open/close enable/disable menu for HD/SL/AV/PW/AU |
 | Refresh | Re-run `scripts/probe.sh` |
 | Copy fix | Clipboard the suggested one-liner (when present) |
@@ -117,19 +121,13 @@ omarchy-shell shell rescanPlugins
 
 ```sh
 omarchy-shell shell toggle harris.security-theater
-omarchy-shell shell summon harris.security-theater '{}'
 omarchy-shell shell hide harris.security-theater
 ```
 
-**Summon payloads (intended contract):**
-
-```sh
-omarchy-shell shell summon harris.security-theater '{"refresh":true}'
-omarchy-shell shell summon harris.security-theater '{"copySummary":true}'
-```
-
-Honest limitation: Omarchy `shell summon` for **bar-widget-only** plugins may
-currently drop the payload and only open the widget. Handlers are wired.
+Optional summon (best-effort): handlers accept `{"refresh":true}` /
+`{"copySummary":true}` when a payload arrives. Omarchy `shell summon` for
+**bar-widget-only** plugins may drop the payload and only open the widget —
+do not rely on summon as a public API.
 
 ## Configure
 
@@ -179,6 +177,7 @@ preview.svg
 preview.png
 REPO.md
 DESIGN.md
+PRE-SHIP.md
 docs/preview/          HTML mock
 ```
 

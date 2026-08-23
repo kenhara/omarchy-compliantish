@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.5.2
+- Quattro pre-ship checklist: named `Style.font.*` tokens; `Quickshell.clipboardText` + `bash -c` clipboard; FileView cache (no mkdir race); drop dead `dataChanged`; Flickable scroll; README hero + L/M/R controls; honest Opened toast; PRE-SHIP.md. ST keeps (crypt≠LVM, lock-listener, AU timers, unknown≠fail, enable persist) unchanged.
+
 ## 0.5.1
 - Audit hardening (false-PASS fixes): HD encryption requires real dm-crypt (`TYPE=crypt` / crypttab / parent chain) — plain LVM `/dev/mapper/…` names no longer pass.
 - Screen lock: parse hypridle per `listener` block; use timeout of lock-bearing `on-timeout` only (dim listeners ignored).

@@ -17,7 +17,7 @@ BarWidget {
     : false
 
   readonly property color foreground: root.bar ? root.bar.foreground : Color.foreground
-  readonly property string fontFamily: root.bar ? root.bar.fontFamily : Style.font.family
+  readonly property string fontFamily: root.bar ? root.bar.fontFamily : "monospace"
 
   property int refreshIntervalSec: {
     var n = 900
@@ -231,12 +231,13 @@ BarWidget {
         tip += " · " + complianceStore.barTooltipDetail
       if (complianceStore.lastUpdatedText)
         tip += " · refreshed " + complianceStore.lastUpdatedText
-      tip += " · middle: refresh"
+      tip += " · middle: refresh · right: close"
       return tip
     }
     onPressed: function(buttonCode) {
       if (buttonCode === Qt.LeftButton) root.toggle()
       else if (buttonCode === Qt.MiddleButton) root.onBarMiddleClick()
+      else if (buttonCode === Qt.RightButton) root.close()
     }
   }
 }

@@ -16,7 +16,7 @@ Panel {
 
   readonly property var barIdentity: hostWidget || root
   readonly property color contentForeground: bar ? bar.foreground : Color.foreground
-  readonly property string contentFontFamily: bar ? bar.fontFamily : Style.font.family
+  readonly property string contentFontFamily: bar ? bar.fontFamily : "monospace"
   readonly property color themeBackground: {
     try {
       if (typeof Color !== "undefined" && Color.popups && Color.popups.background)
@@ -75,14 +75,20 @@ Panel {
     color: root.themeBackground
     radius: Style.space(12)
 
-    Column {
-      id: contentCol
-      anchors.left: parent.left
-      anchors.right: parent.right
-      anchors.top: parent.top
+    Flickable {
+      id: flick
+      anchors.fill: parent
       anchors.margins: Style.space(16)
-      spacing: Style.space(14)
-      opacity: liveStore && liveStore.loading ? 0.72 : 1.0
+      contentWidth: width
+      contentHeight: contentCol.implicitHeight
+      clip: true
+      boundsBehavior: Flickable.StopAtBounds
+
+      Column {
+        id: contentCol
+        width: flick.width
+        spacing: Style.space(14)
+        opacity: liveStore && liveStore.loading ? 0.72 : 1.0
 
       Behavior on opacity {
         NumberAnimation { duration: 160; easing.type: Easing.OutCubic }
@@ -101,7 +107,7 @@ Panel {
             text: "SECURITY THEATER"
             color: root.contentForeground
             font.family: root.contentFontFamily
-            font.pixelSize: Style.font.size(13)
+            font.pixelSize: Style.font.title
             font.bold: true
             font.letterSpacing: 2.4
           }
@@ -117,7 +123,7 @@ Panel {
             color: root.contentForeground
             opacity: 0.45
             font.family: root.contentFontFamily
-            font.pixelSize: Style.font.size(11)
+            font.pixelSize: Style.font.bodySmall
             elide: Text.ElideRight
             width: parent.width
           }
@@ -140,7 +146,7 @@ Panel {
             text: root.checksMenuOpen ? "Checks ▴" : "Checks ▾"
             color: root.contentForeground
             font.family: root.contentFontFamily
-            font.pixelSize: Style.font.size(11)
+            font.pixelSize: Style.font.bodySmall
           }
 
           MouseArea {
@@ -169,7 +175,7 @@ Panel {
             text: liveStore && liveStore.loading ? "…" : "Refresh"
             color: root.contentForeground
             font.family: root.contentFontFamily
-            font.pixelSize: Style.font.size(11)
+            font.pixelSize: Style.font.bodySmall
           }
 
           MouseArea {
@@ -206,7 +212,7 @@ Panel {
             color: root.contentForeground
             opacity: 0.55
             font.family: root.contentFontFamily
-            font.pixelSize: Style.font.size(10)
+            font.pixelSize: Style.font.caption
           }
 
           Repeater {
@@ -225,7 +231,7 @@ Panel {
                   text: modelData.label || modelData.code || "?"
                   color: root.contentForeground
                   font.family: root.contentFontFamily
-                  font.pixelSize: Style.font.size(12)
+                  font.pixelSize: Style.font.subtitle
                   font.bold: true
                   elide: Text.ElideRight
                 }
@@ -236,7 +242,7 @@ Panel {
                   color: root.contentForeground
                   opacity: 0.4
                   font.family: root.contentFontFamily
-                  font.pixelSize: Style.font.size(10)
+                  font.pixelSize: Style.font.caption
                   elide: Text.ElideRight
                 }
               }
@@ -295,7 +301,7 @@ Panel {
             color: root.contentForeground
             opacity: 0.28
             font.family: root.contentFontFamily
-            font.pixelSize: Style.font.size(9)
+            font.pixelSize: Style.font.caption
             wrapMode: Text.Wrap
           }
         }
@@ -322,7 +328,7 @@ Panel {
           Text {
             text: "●"
             color: root.worstColor()
-            font.pixelSize: Style.font.size(16)
+            font.pixelSize: Style.font.title
             anchors.verticalCenter: parent.verticalCenter
           }
 
@@ -341,7 +347,7 @@ Panel {
               }
               color: root.contentForeground
               font.family: root.contentFontFamily
-              font.pixelSize: Style.font.size(12)
+              font.pixelSize: Style.font.subtitle
               font.bold: true
             }
 
@@ -362,7 +368,7 @@ Panel {
               color: root.contentForeground
               opacity: 0.45
               font.family: root.contentFontFamily
-              font.pixelSize: Style.font.size(10)
+              font.pixelSize: Style.font.caption
               wrapMode: Text.Wrap
             }
           }
@@ -388,7 +394,7 @@ Panel {
           color: root.contentForeground
           opacity: 0.4
           font.family: root.contentFontFamily
-          font.pixelSize: Style.font.size(11)
+          font.pixelSize: Style.font.bodySmall
           wrapMode: Text.Wrap
         }
 
@@ -427,7 +433,7 @@ Panel {
             text: "Copy summary"
             color: root.contentForeground
             font.family: root.contentFontFamily
-            font.pixelSize: Style.font.size(11)
+            font.pixelSize: Style.font.bodySmall
           }
 
           MouseArea {
@@ -444,7 +450,7 @@ Panel {
           text: liveStore ? liveStore.toastText : ""
           color: Color.accent
           font.family: root.contentFontFamily
-          font.pixelSize: Style.font.size(11)
+          font.pixelSize: Style.font.bodySmall
           anchors.verticalCenter: parent.verticalCenter
         }
       }
@@ -465,7 +471,7 @@ Panel {
           color: root.contentForeground
           opacity: 0.35
           font.family: root.contentFontFamily
-          font.pixelSize: Style.font.size(10)
+          font.pixelSize: Style.font.caption
           elide: Text.ElideRight
         }
 
@@ -475,10 +481,11 @@ Panel {
           color: root.contentForeground
           opacity: 0.22
           font.family: root.contentFontFamily
-          font.pixelSize: Style.font.size(10)
+          font.pixelSize: Style.font.caption
           wrapMode: Text.Wrap
         }
       }
+    }
     }
   }
 }
