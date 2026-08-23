@@ -10,7 +10,10 @@ probes, a visible **Checks** menu, and a recurring local refresh. Native Omarchy
 **ID:** `harris.security-theater`  
 **Author:** Harris Kenny  
 **License:** MIT  
-**Version:** 0.5.2
+**Version:** 0.5.3
+
+### 0.5.3
+- Discoverability: expanded `keywords` + `barWidget.aliases` (Drata/Vanta/SOC search terms); honest search note.
 
 Changelog: [CHANGELOG.md](CHANGELOG.md) · Audit fixes: [AUDIT-NOTES.md](AUDIT-NOTES.md)
 
@@ -51,6 +54,17 @@ listed** in the main checklist and **not counted** toward `pass/total` on the ba
 
 Probes are **read-only**, **offline**, and never auto-sudo. Remediation is
 **Copy fix** / **Open config** (screen lock) / **Refresh** / **Copy summary** only.
+
+## Discoverability
+
+Marketplace filing: **System** · tags `bar, security, quickshell` (suggest
+missing tag: `compliance`).
+
+Top-level `keywords` in `manifest.json` may help marketplace/search (Drata,
+Vanta, SOC 2, disk encryption, ClamAV, 1Password, etc.). `barWidget.aliases`
+are for discovery docs and human search — the bar loader may not index them.
+Display name stays **Security Theater** (owned joke; no vendor as title).
+Workstation probes only — not a full SOC/HIPAA certification agent.
 
 ## Install
 

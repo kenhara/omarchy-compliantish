@@ -1,5 +1,8 @@
 # Changelog
 
+## 0.5.3
+- Discoverability: expanded `keywords` + `barWidget.aliases` (compliance / Drata / Vanta / encryption / AV / password manager search terms); README Discoverability note. Category remains **System**.
+
 ## 0.5.2
 - Quattro pre-ship checklist: named `Style.font.*` tokens; `Quickshell.clipboardText` + `bash -c` clipboard; FileView cache (no mkdir race); drop dead `dataChanged`; Flickable scroll; README hero + L/M/R controls; honest Opened toast; PRE-SHIP.md. ST keeps (crypt≠LVM, lock-listener, AU timers, unknown≠fail, enable persist) unchanged.
 
