@@ -1,0 +1,116 @@
+{
+  "schemaVersion": 1,
+  "id": "harris.security-theater",
+  "name": "Security Theater",
+  "version": "0.5.0",
+  "author": "Harris Kenny",
+  "license": "MIT",
+  "description": "Local workstation checks for Omarchy — yes, the name is the joke. Disk encryption, screen lock, antivirus, password manager, automatic updates. Checks menu + schema toggles; all five on by default. Unofficial. No Drata or Vanta API.",
+  "kinds": [
+    "bar-widget"
+  ],
+  "entryPoints": {
+    "barWidget": "BarWidget.qml"
+  },
+  "keywords": [
+    "security theater",
+    "compliance",
+    "drata",
+    "vanta",
+    "encryption",
+    "screen lock",
+    "antivirus",
+    "password manager",
+    "updates",
+    "workstation"
+  ],
+  "barWidget": {
+    "displayName": "Security Theater",
+    "description": "Local workstation checks (the name is the joke) with Checks menu toggles: disk encryption, screen lock, antivirus, password manager, automatic updates",
+    "category": "System",
+    "allowMultiple": false,
+    "defaultSection": "right",
+    "aliases": [
+      "security theater",
+      "compliance",
+      "compliance desk",
+      "drata",
+      "vanta",
+      "workstation checks"
+    ],
+    "defaults": {
+      "refreshIntervalSec": 900,
+      "screenLockMaxSec": 900,
+      "notifyOnFail": false,
+      "enableDiskEncryption": true,
+      "enableScreenLock": true,
+      "enableAntivirus": true,
+      "enablePasswordManager": true,
+      "enableAutoUpdates": true
+    },
+    "schema": [
+      {
+        "key": "refreshIntervalSec",
+        "type": "integer",
+        "label": "Refresh interval (seconds)",
+        "description": "How often to re-run the local probe script (default 900 = 15 minutes). Drata's official agent syncs roughly daily; this interval is a local re-probe only. Probes are read-only and offline.",
+        "min": 60,
+        "max": 86400,
+        "step": 60,
+        "defaultValue": 900
+      },
+      {
+        "key": "screenLockMaxSec",
+        "type": "integer",
+        "label": "Screen lock max idle (seconds)",
+        "description": "Screen lock passes when idle→lock timeout is configured and ≤ this value. Default 900 = 15 minutes (Drata Test 61). Vanta allows up to 60 minutes — raise this knob if you only need Vanta parity.",
+        "min": 60,
+        "max": 86400,
+        "step": 60,
+        "defaultValue": 900
+      },
+      {
+        "key": "notifyOnFail",
+        "type": "boolean",
+        "label": "Notify on new fail",
+        "description": "Opt-in desktop toast (notify-send) once per check per day when an enabled check transitions to fail. Off by default.",
+        "defaultValue": false
+      },
+      {
+        "key": "enableDiskEncryption",
+        "type": "boolean",
+        "label": "Check hard drive encryption",
+        "description": "Include hard drive encryption in the panel and bar pass count. Primary toggle: panel Checks menu (widget settings still work). On by default.",
+        "defaultValue": true
+      },
+      {
+        "key": "enableScreenLock",
+        "type": "boolean",
+        "label": "Check screen lock",
+        "description": "Include screen lock in the panel and bar pass count. Primary toggle: panel Checks menu (widget settings still work). On by default.",
+        "defaultValue": true
+      },
+      {
+        "key": "enableAntivirus",
+        "type": "boolean",
+        "label": "Check antivirus",
+        "description": "Include antivirus in the panel and bar pass count. Primary toggle: panel Checks menu (widget settings still work). On by default — turn off in Checks if Omarchy has no AV.",
+        "defaultValue": true
+      },
+      {
+        "key": "enablePasswordManager",
+        "type": "boolean",
+        "label": "Check password manager",
+        "description": "Include password manager in the panel and bar pass count. Primary toggle: panel Checks menu (widget settings still work). On by default.",
+        "defaultValue": true
+      },
+      {
+        "key": "enableAutoUpdates",
+        "type": "boolean",
+        "label": "Check automatic updates",
+        "description": "Include automatic updates in the panel and bar pass count (Drata agent light; not a first-class Vanta Device Monitor column). Primary toggle: panel Checks menu (widget settings still work). On by default — turn off in Checks if policy is manual.",
+        "defaultValue": true
+      }
+    ]
+  }
+}

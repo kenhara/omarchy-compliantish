@@ -1,0 +1,215 @@
+# Security Theater
+
+Local workstation checks for Omarchy — **yes, the name is the joke.** Runs the
+**union of Vanta + Drata workstation agent checks**: exactly **five** read-only
+probes, a visible **Checks** menu, and a recurring local refresh. Built as a native
+Quattro `bar-widget` (not Electron). No Drata/Vanta API; unofficial.
+
+**ID:** `harris.security-theater`  
+**Author:** Harris Kenny  
+**License:** MIT  
+**Version:** 0.5.0
+
+### 0.5.0
+- **Public MVP** — GitHub + Checks menu + five probes + recurring refresh.
+
+### 0.4.2
+- Renamed product to **Security Theater** (`harris.security-theater`); cache → `~/.cache/security-theater`.
+
+### 0.4.1
+- Default `screenLockMaxSec` **900** (15 minutes) to match Drata Test 61; Vanta allows ≤60m via the same knob.
+
+### 0.4.0
+- **Checks** menu in the panel header — On/Off for each of the five checks
+  (primary UI; widget settings remain secondary).
+- All five enables default **on** (turn AV / automatic updates off in Checks if
+  Omarchy has no AV or uses manual updates).
+- Recurring local probe remains on a Timer (`refreshIntervalSec`, default
+  **900 = 15m**); panel shows `auto every 15m`. Drata’s official agent syncs
+  ~daily — this interval only re-probes locally.
+- DESIGN.md documents accurate Vanta (4) vs Drata (5) with help-center sources.
+
+### 0.3.0
+- Per-check enable toggles in widget settings; AV/AU defaulted off.
+- Clean UI: colored `●` status dots + full names only. Bar shows `● N/M`.
+
+### 0.2.1 / 0.2.0
+- Glyph cleanup and pass-count / surface-card polish.
+
+## Repository
+
+**GitHub:** https://github.com/kenhara/omarchy-security-theater  
+Local folder: **`omarchy-security-theater`**.
+
+## Unofficial disclaimer
+
+**Security Theater is unofficial.** It is **not** affiliated with, endorsed by,
+or sponsored by Drata, Inc., Vanta, or any related entity. It mirrors common
+workstation control *themes* only (disk encryption, screen lock, antivirus,
+password manager, automatic updates). It does **not** sync to Drata or Vanta,
+does **not** claim to satisfy any auditor, and must not be presented as an
+official agent.
+
+## What we check
+
+The union of official agent lights is **exactly five** (firewall is **not**
+included — it is not a first-class Drata agent / Vanta Device Monitor column):
+
+| Key | Control | Vendors | Default | Omarchy probe (v1) |
+|-----|---------|---------|---------|-------------------|
+| HD | Hard drive encryption | Vanta + Drata | **on** | LUKS / dm-crypt via `lsblk`, mount sources, `/etc/crypttab` |
+| SL | Screen lock | Vanta + Drata | **on** | `hypridle` (+ lock path) with timeout ≤ `screenLockMaxSec` (default 900 = 15m, Drata Test 61) |
+| AV | Antivirus | Vanta + Drata | **on** | Known packages / binaries / units (ClamAV, Falcon, SentinelOne, MDE, Sophos, …) |
+| PW | Password manager | Vanta + Drata | **on** | 1Password, Bitwarden, KeePassXC, Proton Pass (pacman / bin / flatpak) |
+| AU | Automatic updates | **Drata only** (not a first-class Vanta Device Monitor column) | **on** | Enabled/active update timers/services — else Unknown with honest detail |
+
+Keys (`HD`/`SL`/…) are **internal JSON** only — the UI shows full names and a
+colored `●` status dot (pass = accent, fail = urgent, unknown = muted amber).
+
+**Unknown ≠ fail.** Missing tools or inconclusive signals stay amber, never silent red.
+
+Disabled checks still appear in the **Checks** menu as Off; they are **not
+listed** in the main checklist and **not counted** toward `pass/total` on the bar.
+
+Probes are **read-only**, **offline**, and never auto-sudo. Remediation is
+**Copy fix** / **Open config** (screen lock) / **Refresh** / **Copy summary** only.
+
+## Install
+
+### From GitHub
+
+```sh
+omarchy plugin add https://github.com/kenhara/omarchy-security-theater.git --enable
+omarchy bar move harris.security-theater --section right
+```
+
+### Local copy (this tree)
+
+The **git repo root is the plugin** (`manifest.json` at root). On an Omarchy
+machine:
+
+```sh
+# From a clone of this repo (repo root = plugin root)
+mkdir -p ~/.config/omarchy/plugins
+cp -a . ~/.config/omarchy/plugins/harris.security-theater
+
+omarchy plugin validate ~/.config/omarchy/plugins/harris.security-theater
+omarchy-shell shell rescanPlugins
+
+omarchy bar move harris.security-theater --section right
+```
+
+Hot reload applies on save under `~/.config/omarchy/plugins/`.
+
+### Symlink (dev)
+
+```sh
+mkdir -p ~/.config/omarchy/plugins
+ln -sfn /path/to/omarchy-security-theater ~/.config/omarchy/plugins/harris.security-theater
+omarchy-shell shell rescanPlugins
+```
+
+## Usage
+
+- **Left-click** the bar status (`● 2/5`) to open/close the panel.
+- **Middle-click** re-runs `scripts/probe.sh`.
+- In the panel header: **Checks** opens the enable/disable menu for all five;
+  **Refresh** re-runs the probe. Summary shows `auto every 15m` (or your interval).
+- Per-row **Copy fix** / **Open config** (screen lock), plus **Copy summary**.
+- Pointer cursor only on actionable controls.
+
+### Controls
+
+| Input | Action |
+|-------|--------|
+| Left-click bar | Toggle panel |
+| Middle-click bar | Refresh probe |
+| Checks | Open/close enable/disable menu for HD/SL/AV/PW/AU |
+| Refresh | Re-run `scripts/probe.sh` |
+| Copy fix | Clipboard the suggested one-liner (when present) |
+| Open config | `xdg-open` on detected `hypridle.conf` (screen lock) |
+| Copy summary | Clipboard markdown of enabled statuses + host meta |
+
+### Recurring refresh
+
+`ComplianceStore` keeps a repeating Timer. Default `refreshIntervalSec` = **900**
+(15 minutes). The interval syncs from widget settings; the panel subtitle shows
+`auto every Xm`. Opening the panel also refreshes. Official Drata agent sync is
+~daily — this timer only re-probes **locally**.
+
+### IPC
+
+```sh
+omarchy-shell shell toggle harris.security-theater
+omarchy-shell shell summon harris.security-theater '{}'
+omarchy-shell shell hide harris.security-theater
+```
+
+**Summon payloads (intended contract):**
+
+```sh
+omarchy-shell shell summon harris.security-theater '{"refresh":true}'
+omarchy-shell shell summon harris.security-theater '{"copySummary":true}'
+```
+
+Honest limitation: Quattro’s `shell summon` path for **bar-widget-only** plugins
+may currently drop the payload and only open the widget. Handlers are wired.
+
+## Configure
+
+| Key | Type | Default | Description |
+|-----|------|---------|-------------|
+| `refreshIntervalSec` | integer | `900` | Local probe interval (min 60). Shown as `auto every Xm`. |
+| `screenLockMaxSec` | integer | `900` | Screen lock passes when idle→lock timeout ≤ this many seconds (Drata ≤15m; raise to 3600 for Vanta-only). |
+| `notifyOnFail` | bool | `false` | Opt-in `notify-send` once per enabled check per day on transition to fail. |
+| `enableDiskEncryption` | bool | `true` | Include HD encryption (also toggled in **Checks** menu). |
+| `enableScreenLock` | bool | `true` | Include screen lock (also **Checks** menu). |
+| `enableAntivirus` | bool | `true` | Include antivirus (also **Checks** menu). |
+| `enablePasswordManager` | bool | `true` | Include password manager (also **Checks** menu). |
+| `enableAutoUpdates` | bool | `true` | Include automatic updates (also **Checks** menu). |
+
+## Remove
+
+```sh
+omarchy plugin remove harris.security-theater
+```
+
+Optional cache cleanup:
+
+```sh
+rm -rf ~/.cache/security-theater
+```
+
+## Network
+
+**None in v1.** All checks are local shell probes. Cache:
+`~/.cache/security-theater/last.json`.
+
+## Layout
+
+```
+manifest.json          plugin manifest (id harris.security-theater)
+BarWidget.qml          bar entry + Loader → Panel
+Panel.qml              Checks menu + checklist + Tier A actions
+CheckRow.qml           one control row (● + full name)
+ComplianceStore.qml    Process → scripts/probe.sh + cache + enable filters + Timer
+qmldir
+scripts/probe.sh       JSON on stdout (always five checks)
+LICENSE                MIT
+README.md
+preview.svg
+preview.png
+REPO.md
+DESIGN.md
+docs/preview/          HTML mock
+```
+
+## Security baseline
+
+- Read-only probes; remediation is user-triggered copy/open only.
+- No Drata/Vanta credentials, no OSQuery dependency, no auto package install.
+- MIT at repo root.
+
+## License
+
+MIT — see [LICENSE](LICENSE).

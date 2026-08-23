@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Security Theater — Preview</title>
+<style>
+  :root {
+    --bg: #000; --fg: rgba(240,240,250,1);
+    --mute: rgba(240,240,250,.4); --faint: rgba(240,240,250,.22);
+    --surface: rgba(240,240,250,.06); --card: rgba(240,240,250,.05);
+    --pass: #7dffa0; --fail: #ff8a8a; --unk: #ffd27a; --accent: #7dffa0;
+    --font: system-ui, -apple-system, "Segoe UI", sans-serif;
+    --mono: ui-monospace, monospace; --bar-h: 36px; --panel-w: 400px;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { height: 100%; background: #000; color: var(--fg); font-family: var(--font); }
+  body {
+    background:
+      radial-gradient(ellipse 70% 40% at 70% 20%, rgba(40,50,80,.16), transparent 55%),
+      linear-gradient(180deg, #0a0a0c, #000);
+  }
+  .banner {
+    height: 28px; display: flex; align-items: center; justify-content: center;
+    background: #121218; border-bottom: 1px solid rgba(240,240,250,.08);
+    font-size: 11px; letter-spacing: .06em; color: var(--mute); font-family: var(--mono);
+  }
+  .bar {
+    height: var(--bar-h); display: flex; align-items: center; justify-content: space-between;
+    padding: 0 12px 0 16px; background: rgba(12,12,14,.88); backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(240,240,250,.06);
+  }
+  .bar-brand { font-size: 11px; letter-spacing: .18em; opacity: .85; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 6px; height: 26px; padding: 0 10px;
+    border-radius: 6px; background: rgba(240,240,250,.08); font-size: 12px; cursor: pointer;
+    letter-spacing: .02em;
+  }
+  .pill .dot { font-size: 12px; line-height: 1; }
+  .wrap { position: relative; height: calc(100% - 28px - var(--bar-h)); }
+  .hint {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    opacity: .14; letter-spacing: .35em; text-transform: uppercase; font-size: 13px; pointer-events: none;
+  }
+  .panel {
+    position: absolute; top: 16px; right: 16px; width: var(--panel-w);
+    background: linear-gradient(180deg, #121216, #0a0a0c); border: 1px solid rgba(240,240,250,.1);
+    border-radius: 14px; padding: 16px; box-shadow: 0 18px 48px rgba(0,0,0,.65);
+    display: flex; flex-direction: column; gap: 14px;
+    max-height: calc(100% - 32px); overflow: auto;
+  }
+  .head { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .head h1 { font-size: 13px; letter-spacing: .22em; font-weight: 700; }
+  .head .sub { font-size: 11px; color: var(--mute); margin-top: 4px; opacity: .9; }
+  .head-actions { display: flex; gap: 8px; flex-shrink: 0; }
+  .btn {
+    border: 1px solid rgba(240,240,250,.12); background: var(--surface); color: var(--fg);
+    border-radius: 6px; padding: 5px 10px; font-size: 11px; cursor: pointer;
+  }
+  .btn:hover { background: rgba(240,240,250,.1); }
+  .btn.active { background: rgba(240,240,250,.12); }
+  .checks-menu {
+    display: none; flex-direction: column; gap: 8px;
+    background: var(--surface); border: 1px solid rgba(240,240,250,.12);
+    border-radius: 8px; padding: 12px;
+  }
+  .checks-menu.open { display: flex; }
+  .checks-menu .hint-line { font-size: 10px; color: var(--mute); margin-bottom: 2px; }
+  .toggle-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .toggle-row .name { font-size: 12px; font-weight: 700; }
+  .toggle-row .state { font-size: 10px; color: var(--mute); margin-top: 2px; }
+  .switch {
+    width: 46px; height: 24px; border-radius: 12px; border: 1px solid rgba(240,240,250,.14);
+    background: rgba(240,240,250,.12); position: relative; cursor: pointer; flex-shrink: 0;
+    transition: background .15s ease;
+  }
+  .switch.on { background: rgba(125,255,160,.35); }
+  .switch::after {
+    content: ""; position: absolute; top: 2px; left: 3px; width: 18px; height: 18px;
+    border-radius: 50%; background: var(--fg); transition: left .12s ease;
+  }
+  .switch.on::after { left: 23px; }
+  .summary {
+    display: flex; gap: 10px; align-items: flex-start; background: var(--surface);
+    border: 1px solid rgba(240,240,250,.08); border-radius: 8px; padding: 12px;
+  }
+  .summary .dot { font-size: 14px; line-height: 1.2; }
+  .summary .title { font-size: 12px; font-weight: 700; }
+  .summary .sub { font-size: 10px; color: var(--mute); margin-top: 2px; line-height: 1.4; }
+  .sep { height: 1px; background: linear-gradient(90deg, transparent, rgba(240,240,250,.12), transparent); }
+  .checks { display: flex; flex-direction: column; gap: 8px; }
+  .empty { font-size: 11px; color: var(--mute); padding: 4px 2px; }
+  .row {
+    padding: 10px; border-radius: 8px; background: var(--card);
+    border: 1px solid rgba(240,240,250,.08);
+  }
+  .row-top { display: flex; gap: 10px; align-items: flex-start; }
+  .status-dot { font-size: 11px; line-height: 1; flex-shrink: 0; align-self: center; }
+  .status-dot.pass { color: var(--pass); }
+  .status-dot.fail { color: var(--fail); }
+  .status-dot.unknown { color: var(--unk); }
+  .label { font-size: 12px; font-weight: 700; }
+  .detail { font-size: 11px; color: var(--mute); margin-top: 2px; }
+  .grow { flex: 1; min-width: 0; }
+  .badge {
+    font-size: 10px; font-weight: 700; padding: 4px 8px; border-radius: 6px; letter-spacing: .05em;
+    flex-shrink: 0; align-self: center;
+  }
+  .pass { color: var(--pass); background: rgba(125,255,160,.18); }
+  .fail { color: var(--fail); background: rgba(255,138,138,.22); }
+  .unknown { color: var(--unk); background: rgba(255,210,122,.14); }
+  .actions {
+    margin: 8px 0 0 24px; display: flex; gap: 8px;
+    padding-top: 8px; border-top: 1px solid rgba(240,240,250,.08);
+  }
+  .foot { display: flex; gap: 8px; align-items: center; }
+  .toast { font-size: 11px; color: var(--pass); }
+  .meta { font-size: 10px; color: var(--faint); line-height: 1.55; }
+  .meta .host { color: rgba(240,240,250,.35); margin-bottom: 2px; }
+</style>
+</head>
+<body>
+  <div class="banner"><strong style="color:rgba(240,240,250,.85);margin-right:.4em">Preview</strong> Security Theater HTML mock — not the live QML widget · v0.4.2</div>
+  <div class="bar">
+    <div class="bar-brand">OMARCHY</div>
+    <div class="pill" id="barPill" title="Security Theater">
+      <span class="dot" id="barDot">●</span><span id="barFrac">—</span>
+    </div>
+  </div>
+  <div class="wrap">
+    <div class="hint">Omarchy · Security Theater</div>
+    <div class="panel">
+      <div class="head">
+        <div>
+          <h1>SECURITY THEATER</h1>
+          <div class="sub">refreshed 2m ago</div>
+        </div>
+        <div class="head-actions">
+          <button class="btn" type="button" id="checksBtn" onclick="toggleChecksMenu()">Checks ▾</button>
+          <button class="btn" type="button" onclick="toast('Refreshed (mock)')">Refresh</button>
+        </div>
+      </div>
+
+      <div class="checks-menu" id="checksMenu">
+        <div class="hint-line">Enable or disable each check</div>
+        <div id="toggleList"></div>
+        <div class="hint-line" style="opacity:.7;margin-top:4px">Widget settings remain a secondary way to change the same flags.</div>
+      </div>
+
+      <div class="summary">
+        <span class="dot" id="sumDot">●</span>
+        <div>
+          <div class="title" id="sumTitle">—</div>
+          <div class="sub" id="sumSub">auto every 15m</div>
+        </div>
+      </div>
+
+      <div class="sep"></div>
+
+      <div class="checks" id="checkList"></div>
+
+      <div class="foot">
+        <button class="btn" type="button" onclick="toast('Copied')">Copy summary</button>
+        <span class="toast" id="toast"></span>
+      </div>
+      <div class="meta">
+        <div class="host">host · Omarchy · kernel</div>
+        Unofficial · not affiliated with Drata or Vanta · Unknown ≠ fail
+      </div>
+    </div>
+  </div>
+<script>
+var CHECKS = [
+  { code: 'HD', label: 'Hard drive encryption', status: 'pass', detail: 'LUKS root', enabled: true },
+  { code: 'SL', label: 'Screen lock', status: 'fail', detail: 'no hypridle timeout', enabled: true, actions: true },
+  { code: 'AV', label: 'Antivirus', status: 'fail', detail: 'none detected', enabled: true, actions: true },
+  { code: 'PW', label: 'Password manager', status: 'pass', detail: '1Password', enabled: true },
+  { code: 'AU', label: 'Automatic updates', status: 'unknown', detail: 'no update timer/service detected', enabled: true }
+];
+
+function toast(msg) {
+  var el = document.getElementById('toast');
+  el.textContent = msg;
+  clearTimeout(window.__t);
+  window.__t = setTimeout(function(){ el.textContent = ''; }, 1600);
+}
+
+function toggleChecksMenu() {
+  var menu = document.getElementById('checksMenu');
+  var btn = document.getElementById('checksBtn');
+  var open = menu.classList.toggle('open');
+  btn.classList.toggle('active', open);
+  btn.textContent = open ? 'Checks ▴' : 'Checks ▾';
+}
+
+function setEnabled(code, on) {
+  for (var i = 0; i < CHECKS.length; i++) {
+    if (CHECKS[i].code === code) { CHECKS[i].enabled = !!on; break; }
+  }
+  render();
+}
+
+function worstColor(list) {
+  var hasFail = false, hasUnk = false;
+  for (var i = 0; i < list.length; i++) {
+    if (list[i].status === 'fail') hasFail = true;
+    if (list[i].status === 'unknown') hasUnk = true;
+  }
+  if (hasFail) return 'var(--fail)';
+  if (hasUnk || !list.length) return 'var(--unk)';
+  return 'var(--pass)';
+}
+
+function renderToggles() {
+  var host = document.getElementById('toggleList');
+  host.innerHTML = '';
+  CHECKS.forEach(function(c) {
+    var row = document.createElement('div');
+    row.className = 'toggle-row';
+    var left = document.createElement('div');
+    left.innerHTML = '<div class="name">' + c.label + '</div>'
+      + '<div class="state">' + (c.enabled ? 'On — shown in checklist' : 'Off — hidden from checklist') + '</div>';
+    var sw = document.createElement('button');
+    sw.type = 'button';
+    sw.className = 'switch' + (c.enabled ? ' on' : '');
+    sw.setAttribute('aria-label', c.label + (c.enabled ? ' On' : ' Off'));
+    sw.onclick = function() { setEnabled(c.code, !c.enabled); };
+    row.appendChild(left);
+    row.appendChild(sw);
+    host.appendChild(row);
+  });
+}
+
+function renderRows(enabled) {
+  var host = document.getElementById('checkList');
+  host.innerHTML = '';
+  if (!enabled.length) {
+    host.innerHTML = '<div class="empty">All checks are Off — open Checks to enable any.</div>';
+    return;
+  }
+  enabled.forEach(function(c) {
+    var row = document.createElement('div');
+    row.className = 'row';
+    var actions = '';
+    if (c.actions && (c.status === 'fail' || c.status === 'unknown')) {
+      actions = '<div class="actions">'
+        + '<button class="btn" type="button" onclick="toast(\'Copied\')">Copy fix</button>'
+        + (c.code === 'SL' ? '<button class="btn" type="button" onclick="toast(\'Open config\')">Open config</button>' : '')
+        + '</div>';
+    }
+    row.innerHTML =
+      '<div class="row-top">'
+      + '<span class="status-dot ' + c.status + '">●</span>'
+      + '<div class="grow"><div class="label">' + c.label + '</div><div class="detail">' + c.detail + '</div></div>'
+      + '<span class="badge ' + c.status + '">' + c.status.toUpperCase() + '</span>'
+      + '</div>' + actions;
+    host.appendChild(row);
+  });
+}
+
+function render() {
+  var enabled = CHECKS.filter(function(c) { return c.enabled; });
+  var pass = enabled.filter(function(c) { return c.status === 'pass'; }).length;
+  var failNames = enabled.filter(function(c) { return c.status === 'fail'; }).map(function(c) { return c.label; });
+  var unkNames = enabled.filter(function(c) { return c.status === 'unknown'; }).map(function(c) { return c.label; });
+  var color = worstColor(enabled);
+
+  document.getElementById('barFrac').textContent = enabled.length ? (pass + '/' + enabled.length) : '—';
+  document.getElementById('barDot').style.color = color;
+  document.getElementById('sumDot').style.color = color;
+  document.getElementById('sumTitle').textContent = enabled.length
+    ? (pass + ' of ' + enabled.length + ' pass')
+    : 'no checks enabled';
+
+  var bits = ['auto every 15m'];
+  if (failNames.length) bits.push('fail ' + failNames.join(', '));
+  else if (unkNames.length) bits.push('unknown ' + unkNames.join(', '));
+  else if (enabled.length) bits.push('local workstation checks');
+  document.getElementById('sumSub').textContent = bits.join(' · ');
+
+  var tip = 'Security Theater — ' + (enabled.length ? (pass + '/' + enabled.length + ' pass') : 'no checks enabled');
+  if (failNames.length) tip += ' · fail: ' + failNames.join(', ');
+  tip += ' · middle: refresh';
+  document.getElementById('barPill').title = tip;
+
+  renderToggles();
+  renderRows(enabled);
+}
+
+render();
+</script>
+</body>
+</html>
