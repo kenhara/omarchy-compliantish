@@ -128,7 +128,7 @@ Panel {
           width: checksLabel.implicitWidth + Style.space(14)
           height: Style.space(26)
           radius: 6
-          color: root.checksMenuOpen
+          color: (root.checksMenuOpen || checksMa.containsMouse)
             ? Qt.rgba(root.contentForeground.r, root.contentForeground.g, root.contentForeground.b, 0.12)
             : root.surfaceColor
           border.width: 1
@@ -144,7 +144,9 @@ Panel {
           }
 
           MouseArea {
+            id: checksMa
             anchors.fill: parent
+            hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
             onClicked: root.checksMenuOpen = !root.checksMenuOpen
           }
@@ -155,7 +157,9 @@ Panel {
           width: refreshLabel.implicitWidth + Style.space(14)
           height: Style.space(26)
           radius: 6
-          color: root.surfaceColor
+          color: refreshMa.containsMouse
+            ? Qt.rgba(root.contentForeground.r, root.contentForeground.g, root.contentForeground.b, 0.12)
+            : root.surfaceColor
           border.width: 1
           border.color: Qt.rgba(root.contentForeground.r, root.contentForeground.g, root.contentForeground.b, 0.12)
 
@@ -169,7 +173,9 @@ Panel {
           }
 
           MouseArea {
+            id: refreshMa
             anchors.fill: parent
+            hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
             onClicked: if (liveStore) liveStore.refresh()
           }
@@ -409,7 +415,9 @@ Panel {
           width: summaryBtnLabel.implicitWidth + Style.space(14)
           height: Style.space(28)
           radius: 6
-          color: root.surfaceColor
+          color: summaryMa.containsMouse
+            ? Qt.rgba(root.contentForeground.r, root.contentForeground.g, root.contentForeground.b, 0.12)
+            : root.surfaceColor
           border.width: 1
           border.color: Qt.rgba(root.contentForeground.r, root.contentForeground.g, root.contentForeground.b, 0.12)
 
@@ -423,7 +431,9 @@ Panel {
           }
 
           MouseArea {
+            id: summaryMa
             anchors.fill: parent
+            hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
             onClicked: if (liveStore) liveStore.copySummary()
           }

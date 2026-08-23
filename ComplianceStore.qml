@@ -33,6 +33,7 @@ QtObject {
   property bool loading: false
   property string lastError: ""
   property string toastText: ""
+  property string pendingCacheBody: ""
   property var notifiedFails: ({})   // code -> YYYY-MM-DD
 
   property string probeBuf: ""
@@ -96,9 +97,7 @@ QtObject {
   readonly property int totalCount: (store.enabledChecks || []).length
   readonly property string worstStatus: {
     if (store.failCount > 0) return "fail"
-    if (store.unknownCount > 0) return "unknown"
-    if (store.totalCount === 0) return "unknown"
-    if (store.passCount > 0 && store.passCount === store.totalCount) return "pass"
+    if (store.unknownCount > 0 || store.totalCount === 0) return "unknown"
     return "pass"
   }
   // Bar glyph: ● (U+25CF) — no shields, no letter codes
@@ -179,6 +178,7 @@ QtObject {
     else return false
     store.dataChanged()
     store.checkEnableChanged(c, on)
+    store.persistToDisk()
     // Re-probe when turning a check back on so the row is fresh.
     if (on && !prev)
       Qt.callLater(function() { store.refresh() })
@@ -317,10 +317,13 @@ QtObject {
         return true
       }
     } catch (e) {}
-    // Wayland / X11 fallbacks
-    copyProc.command = ["bash", "-lc", "printf '%s' \"$1\" | (command -v wl-copy >/dev/null && wl-copy || command -v xclip >/dev/null && xclip -selection clipboard || command -v xsel >/dev/null && xsel --clipboard --input || cat >/dev/null)", "compliance-copy", t]
+    // Wayland / X11 fallbacks — toast only in copyProc.onExited (no cat swallow)
+    copyProc.command = [
+      "bash", "-lc",
+      'printf "%s" "$1" | if command -v wl-copy >/dev/null; then wl-copy; elif command -v xclip >/dev/null; then xclip -selection clipboard; elif command -v xsel >/dev/null; then xsel --clipboard --input; else exit 127; fi',
+      "compliance-copy", t
+    ]
     copyProc.running = true
-    store.showToast("Copied")
     return true
   }
 
@@ -343,7 +346,6 @@ QtObject {
     }
     openUrlProc.command = ["xdg-open", path]
     openUrlProc.running = true
-    store.showToast("Opening config")
     return true
   }
 
@@ -383,12 +385,10 @@ QtObject {
 
   function persistToDisk(obj) {
     var body = JSON.stringify(obj || buildCacheObject(), null, 2) + "\n"
+    store.pendingCacheBody = body
+    if (ensureCacheDir.running)
+      return
     ensureCacheDir.running = true
-    Qt.callLater(function() {
-      try {
-        cacheFile.setText(body)
-      } catch (e) {}
-    })
   }
 
   function buildCacheObject() {
@@ -398,7 +398,12 @@ QtObject {
       screenLockMaxSec: store.screenLockMaxSec,
       meta: store.meta || ({}),
       checks: store.checks || [],
-      notifiedFails: store.notifiedFails || ({})
+      notifiedFails: store.notifiedFails || ({}),
+      enableDiskEncryption: !!store.enableDiskEncryption,
+      enableScreenLock: !!store.enableScreenLock,
+      enableAntivirus: !!store.enableAntivirus,
+      enablePasswordManager: !!store.enablePasswordManager,
+      enableAutoUpdates: !!store.enableAutoUpdates
     }
   }
 
@@ -438,6 +443,17 @@ QtObject {
       var obj = JSON.parse(text || "{}")
       if (obj.notifiedFails)
         store.notifiedFails = obj.notifiedFails
+      // Rehydrate Checks-menu toggles when host settings are not writable
+      if (obj.enableDiskEncryption !== undefined)
+        store.enableDiskEncryption = !!obj.enableDiskEncryption
+      if (obj.enableScreenLock !== undefined)
+        store.enableScreenLock = !!obj.enableScreenLock
+      if (obj.enableAntivirus !== undefined)
+        store.enableAntivirus = !!obj.enableAntivirus
+      if (obj.enablePasswordManager !== undefined)
+        store.enablePasswordManager = !!obj.enablePasswordManager
+      if (obj.enableAutoUpdates !== undefined)
+        store.enableAutoUpdates = !!obj.enableAutoUpdates
       return store.applyPayload(obj, "disk")
     } catch (e) {
       return false
@@ -511,11 +527,25 @@ QtObject {
     id: ensureCacheDir
     command: ["mkdir", "-p", store.cacheDir]
     running: false
+    onExited: function(exitCode, exitStatus) {
+      var body = store.pendingCacheBody
+      store.pendingCacheBody = ""
+      if (!body || !body.length) return
+      try {
+        cacheFile.setText(body)
+      } catch (e) {}
+    }
   }
 
   Process {
     id: openUrlProc
     running: false
+    onExited: function(exitCode, exitStatus) {
+      if (exitCode === 0)
+        store.showToast("Opening config")
+      else
+        store.showToast("Open failed")
+    }
   }
 
   Process {
@@ -526,6 +556,14 @@ QtObject {
   Process {
     id: copyProc
     running: false
+    onExited: function(exitCode, exitStatus) {
+      if (exitCode === 0)
+        store.showToast("Copied")
+      else if (exitCode === 127)
+        store.showToast("No clipboard tool")
+      else
+        store.showToast("Copy failed")
+    }
   }
 
   Process {

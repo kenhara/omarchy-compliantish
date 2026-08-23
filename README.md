@@ -2,39 +2,15 @@
 
 Local workstation checks for Omarchy — **yes, the name is the joke.** Runs the
 **union of Vanta + Drata workstation agent checks**: exactly **five** read-only
-probes, a visible **Checks** menu, and a recurring local refresh. Built as a native
-Quattro `bar-widget` (not Electron). No Drata/Vanta API; unofficial.
+probes, a visible **Checks** menu, and a recurring local refresh. Native Omarchy
+`bar-widget` (not Electron). No Drata/Vanta API; unofficial.
 
 **ID:** `harris.security-theater`  
 **Author:** Harris Kenny  
 **License:** MIT  
-**Version:** 0.5.0
+**Version:** 0.5.1
 
-### 0.5.0
-- **Public MVP** — GitHub + Checks menu + five probes + recurring refresh.
-
-### 0.4.2
-- Renamed product to **Security Theater** (`harris.security-theater`); cache → `~/.cache/security-theater`.
-
-### 0.4.1
-- Default `screenLockMaxSec` **900** (15 minutes) to match Drata Test 61; Vanta allows ≤60m via the same knob.
-
-### 0.4.0
-- **Checks** menu in the panel header — On/Off for each of the five checks
-  (primary UI; widget settings remain secondary).
-- All five enables default **on** (turn AV / automatic updates off in Checks if
-  Omarchy has no AV or uses manual updates).
-- Recurring local probe remains on a Timer (`refreshIntervalSec`, default
-  **900 = 15m**); panel shows `auto every 15m`. Drata’s official agent syncs
-  ~daily — this interval only re-probes locally.
-- DESIGN.md documents accurate Vanta (4) vs Drata (5) with help-center sources.
-
-### 0.3.0
-- Per-check enable toggles in widget settings; AV/AU defaulted off.
-- Clean UI: colored `●` status dots + full names only. Bar shows `● N/M`.
-
-### 0.2.1 / 0.2.0
-- Glyph cleanup and pass-count / surface-card polish.
+Changelog: [CHANGELOG.md](CHANGELOG.md) · Audit fixes: [AUDIT-NOTES.md](AUDIT-NOTES.md)
 
 ## Repository
 
@@ -57,11 +33,11 @@ included — it is not a first-class Drata agent / Vanta Device Monitor column):
 
 | Key | Control | Vendors | Default | Omarchy probe (v1) |
 |-----|---------|---------|---------|-------------------|
-| HD | Hard drive encryption | Vanta + Drata | **on** | LUKS / dm-crypt via `lsblk`, mount sources, `/etc/crypttab` |
-| SL | Screen lock | Vanta + Drata | **on** | `hypridle` (+ lock path) with timeout ≤ `screenLockMaxSec` (default 900 = 15m, Drata Test 61) |
+| HD | Hard drive encryption | Vanta + Drata | **on** | Real dm-crypt: `lsblk TYPE=crypt`, crypttab, or crypt in `/`/`/home` parent chain (not plain LVM mapper names) |
+| SL | Screen lock | Vanta + Drata | **on** | `hypridle` / `swayidle` lock-bearing timeout ≤ `screenLockMaxSec` (default 900 = 15m, Drata Test 61) |
 | AV | Antivirus | Vanta + Drata | **on** | Known packages / binaries / units (ClamAV, Falcon, SentinelOne, MDE, Sophos, …) |
 | PW | Password manager | Vanta + Drata | **on** | 1Password, Bitwarden, KeePassXC, Proton Pass (pacman / bin / flatpak) |
-| AU | Automatic updates | **Drata only** (not a first-class Vanta Device Monitor column) | **on** | Enabled/active update timers/services — else Unknown with honest detail |
+| AU | Automatic updates | **Drata only** (not a first-class Vanta Device Monitor column) | **on** | Genuinely scheduled update timers (`is-active` or `enabled`/`enabled-runtime`) — else Unknown |
 
 Keys (`HD`/`SL`/…) are **internal JSON** only — the UI shows full names and a
 colored `●` status dot (pass = accent, fail = urgent, unknown = muted amber).
@@ -152,8 +128,8 @@ omarchy-shell shell summon harris.security-theater '{"refresh":true}'
 omarchy-shell shell summon harris.security-theater '{"copySummary":true}'
 ```
 
-Honest limitation: Quattro’s `shell summon` path for **bar-widget-only** plugins
-may currently drop the payload and only open the widget. Handlers are wired.
+Honest limitation: Omarchy `shell summon` for **bar-widget-only** plugins may
+currently drop the payload and only open the widget. Handlers are wired.
 
 ## Configure
 
@@ -197,6 +173,8 @@ qmldir
 scripts/probe.sh       JSON on stdout (always five checks)
 LICENSE                MIT
 README.md
+CHANGELOG.md
+AUDIT-NOTES.md
 preview.svg
 preview.png
 REPO.md

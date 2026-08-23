@@ -1,9 +1,8 @@
 # Security Theater — Omarchy plugin (Vanta ∪ Drata workstation checks)
 
-**Status:** implemented v0.4.2 (community plugin; no Drata/Vanta API)  
+**Status:** implemented v0.5.1 (community plugin; no Drata/Vanta API)  
 **Coverage:** union of **Vanta Device Monitor (4)** + **Drata Agent (5)** = **exactly five** local lights  
-**Exemplar lessons:** Space Jockey + Omarchy Quattro plugin playbook  
-**Paths:** `/workspace/omarchy-security-theater/` · Space Jockey: `/workspace/omarchy-space-jockey`
+**Exemplar lessons:** Omarchy nested `bar-widget` + Panel pattern  
 
 ---
 
@@ -14,7 +13,7 @@
 | Official **Drata Agent** is Electron + OSQuery, toolbar app, **read-only**, syncs ~daily to Drata | We will **not** pretend to be that agent or sync to Drata |
 | Drata Linux support is basically **Ubuntu 22/24**; HD encryption often **manual evidence** | Omarchy (Arch) is outside the supported path — gap is real |
 | Official agent **does not remediate** — only shows blue “how to fix” links | Our edge: Omarchy-native fix affordances without writing secrets or spoofing Drata |
-| Community Quattro plugin = unsandboxed like any Omarchy plugin | Aim security baseline `passed`; probes read-only; remediation = user-triggered |
+| Community Omarchy plugin = unsandboxed like any Omarchy plugin | Aim security baseline `passed`; probes read-only; remediation = user-triggered |
 
 **v0.4 success:** Bar shows pass/fail for the **same five workstation controls** (Vanta’s four + Drata’s automatic-updates light); panel **Checks** menu clearly enables/disables each; recurring local probe on a visible interval. No Drata credentials. No auto-sudo.
 
@@ -64,17 +63,17 @@
 
 ---
 
-## 3. Product shape (Space Jockey lessons applied)
+## 3. Product shape (Omarchy bar-widget lessons)
 
-| Lesson from Space Jockey | Apply here |
-|-------------------------|------------|
+| Lesson | Apply here |
+|--------|------------|
 | `bar-widget` + nested `Panel.qml` only | Same — no separate `panel` kind |
 | Theme tokens (`Color` / `Style` / `bar.foreground`) | System category chrome; no “compliance SaaS” skin |
 | Schema knobs early | `refreshIntervalSec` (900), `screenLockMaxSec` (900 = Drata ≤15m), `notifyOnFail`, five `enable*` flags |
 | Primary toggle UI in panel | **Checks** menu in header (schema remains secondary) |
-| Pointer cursor only if actionable | Fix buttons / copy / open-config / Checks toggles get pointer |
+| Pointer + hover only if actionable | Fix buttons / copy / open-config / Checks toggles |
 | Honest empty/error states | Unknown ≠ fail; hide broken icons |
-| MIT @ repo root, manifest at root | Same marketplace layout as Space Jockey |
+| MIT @ repo root, manifest at root | Marketplace-friendly layout |
 | Unofficial disclaimer | Not affiliated with Drata, Inc. or Vanta; mirrors common checks only |
 | README Controls + IPC | `toggle` / `summon` / Refresh |
 | Dead-simple v1 | Five rows + Checks + Refresh + Copy summary — no MDM fantasy |
@@ -106,11 +105,11 @@ BarWidget ──Loader──► Panel (Checks menu + checklist + fix actions)
 
 | Code | Label | Omarchy probe | Pass (draft) |
 |------|-------|---------------|--------------|
-| **HD** | Hard drive encryption | `lsblk` / `/etc/crypttab` / root on `crypt` mapper | Root (or `/home`) on LUKS/dm-crypt |
+| **HD** | Hard drive encryption | `lsblk TYPE=crypt` / crypttab / parent-chain walk | Root (or `/home`) backed by dm-crypt — not plain LVM mapper names |
 | **SL** | Screen lock | `hypridle` / `swayidle` + `hyprlock` (or lock cmd) | Idle → lock path exists **and** timeout ≤ `screenLockMaxSec` (default 900 = 15m, Drata Test 61; Vanta allows ≤60m) |
 | **AV** | Antivirus | Packages/services: clamav, crowdstrike, sentinelone, mde, sophos, … | ≥1 known agent |
 | **PW** | Password manager | `1password`, `bitwarden`, `keepassxc`, `proton-pass`, flatpaks; optional browser extension dirs | ≥1 known PWM |
-| **AU** | Automatic updates | Arch/Omarchy: `systemd` timers for update helpers | Timer/service enabled **or** clear Unknown with honest detail |
+| **AU** | Automatic updates | Arch/Omarchy: `systemd` timers for update helpers | Timer genuinely scheduled (`is-active` or `enabled`/`enabled-runtime`) **or** clear Unknown |
 
 **Meta (show, don’t gate bar color):** OS pretty name, kernel, hostname, `/etc/machine-id`, last probe time.
 
@@ -175,14 +174,14 @@ Bar: worst of **enabled** → red if any fail, amber if any unknown and no fails
 
 ## 7. Version notes
 
-### 0.4.0
-- Panel **Checks** menu as primary enable/disable UI for all five
-- All five `enable*` defaults **true** (comprehensive coverage; user can turn AV/AU off)
-- Visible recurring probe: `auto every Xm` + Timer synced from schema
-- DESIGN §2 rewritten with accurate Vanta (4) vs Drata (5) + Linux caveats + source URLs
+### 0.5.1
+- Audit false-PASS hardening (HD / SL / AU); swayidle parse; AV list cleanup; cache/toast/hover polish — see `AUDIT-NOTES.md` / `CHANGELOG.md`
 
-### 0.3.0
-- Per-check enable toggles in widget settings; AV/AU defaulted off
+### 0.5.0
+- Public MVP on GitHub
+
+### 0.4.x
+- Panel **Checks** menu; all five `enable*` default on; recurring local probe; rename to Security Theater
 
 ### Earlier
 - Pass-count fix, surface cards, ● status dots, probe JSON

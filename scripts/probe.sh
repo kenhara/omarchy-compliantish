@@ -71,40 +71,56 @@ if [ -r /etc/machine-id ]; then
 fi
 PROBED_AT="$(date -u +%Y-%m-%dT%H:%M:%SZ 2>/dev/null || date -u)"
 
-# --- HD: disk encryption (LUKS / dm-crypt) ----------------------------------
+# --- HD: disk encryption (LUKS / dm-crypt only — not plain LVM mapper names) -
 HD_STATUS="unknown"
 HD_DETAIL="could not inspect block devices"
 HD_FIX="See ArchWiki: dm-crypt/Encrypting an entire system (read-only probe — no auto encrypt)."
 HD_CONFIG=""
+
+# True when SOURCE (or a parent in the lsblk tree) has TYPE=crypt.
+# Plain LVM names like /dev/mapper/vg0-root must NOT pass on name alone.
+mount_src_on_crypt() {
+  local src="$1"
+  [ -n "$src" ] || return 1
+  have_cmd lsblk || return 1
+  local chain
+  # -s: dependency tree toward parents (PV → crypt → disk)
+  chain="$(lsblk -n -r -o NAME,TYPE -s "$src" 2>/dev/null || true)"
+  if [ -z "$chain" ]; then
+    chain="$(lsblk -n -r -o NAME,TYPE "$src" 2>/dev/null || true)"
+  fi
+  [ -n "$chain" ] || return 1
+  echo "$chain" | grep -qiE '(^|[[:space:]])crypt([[:space:]]|$)' && return 0
+  return 1
+}
 
 if have_cmd lsblk; then
   LSBLK_OUT="$(lsblk -o NAME,TYPE,MOUNTPOINT,FSTYPE 2>/dev/null || true)"
   ROOT_SRC="$(findmnt -n -o SOURCE / 2>/dev/null || true)"
   HOME_SRC="$(findmnt -n -o SOURCE /home 2>/dev/null || true)"
   HAS_CRYPT_TYPE=0
-  HAS_MAPPER=0
   HAS_CRYPTTAB=0
   echo "$LSBLK_OUT" | grep -qiE '[[:space:]]crypt[[:space:]]' && HAS_CRYPT_TYPE=1 || true
-  echo "$ROOT_SRC$HOME_SRC" | grep -qiE 'mapper|crypt' && HAS_MAPPER=1 || true
   if [ -r /etc/crypttab ] && grep -qvE '^[[:space:]]*(#|$)' /etc/crypttab 2>/dev/null; then
     HAS_CRYPTTAB=1
   fi
-  if [ "$HAS_MAPPER" = 1 ] && echo "$ROOT_SRC" | grep -qiE 'mapper|crypt'; then
+
+  if mount_src_on_crypt "$ROOT_SRC"; then
     HD_STATUS="pass"
-    HD_DETAIL="LUKS/dm-crypt on / (${ROOT_SRC})"
-  elif [ "$HAS_MAPPER" = 1 ] && echo "$HOME_SRC" | grep -qiE 'mapper|crypt'; then
+    HD_DETAIL="LUKS/dm-crypt backs / (${ROOT_SRC})"
+  elif mount_src_on_crypt "$HOME_SRC"; then
     HD_STATUS="pass"
-    HD_DETAIL="LUKS/dm-crypt on /home (${HOME_SRC})"
+    HD_DETAIL="LUKS/dm-crypt backs /home (${HOME_SRC})"
   elif [ "$HAS_CRYPT_TYPE" = 1 ]; then
     HD_STATUS="pass"
-    HD_DETAIL="crypt mapper present (lsblk)"
+    HD_DETAIL="crypt mapper present (lsblk TYPE=crypt)"
   elif [ "$HAS_CRYPTTAB" = 1 ]; then
     HD_STATUS="pass"
     HD_DETAIL="entries in /etc/crypttab"
     HD_CONFIG="/etc/crypttab"
   else
     HD_STATUS="fail"
-    HD_DETAIL="no LUKS/dm-crypt mapper or crypttab entries detected"
+    HD_DETAIL="no LUKS/dm-crypt (TYPE=crypt) or crypttab entries detected"
   fi
 elif [ -r /etc/crypttab ] && grep -qvE '^[[:space:]]*(#|$)' /etc/crypttab 2>/dev/null; then
   HD_STATUS="pass"
@@ -136,6 +152,7 @@ HYPRIDLE_CANDIDATES=(
 SWAYIDLE_CANDIDATES=(
   "${XDG_CONFIG_HOME:-$HOME/.config}/swayidle/config"
   "$HOME/.config/sway/config"
+  "$HOME/.config/swayidle/config"
 )
 
 LOCK_BIN=""
@@ -145,55 +162,130 @@ elif bin_present gtklock; then LOCK_BIN="gtklock"
 fi
 
 FOUND_IDLE_CONF=""
+IDLE_KIND=""
 for f in "${HYPRIDLE_CANDIDATES[@]}"; do
-  if [ -r "$f" ]; then FOUND_IDLE_CONF="$f"; break; fi
+  if [ -r "$f" ]; then FOUND_IDLE_CONF="$f"; IDLE_KIND="hypridle"; break; fi
 done
 
-parse_timeout_sec() {
-  # Best-effort: first listener timeout = N (seconds) in hypridle.conf
+# Timeout of the listener block whose on-timeout invokes a lock.
+# Do NOT take the first timeout= in the file (dim listeners often come first).
+parse_hypridle_lock_timeout_sec() {
   local conf="$1"
-  local t
-  t="$(grep -E '^\s*timeout\s*=' "$conf" 2>/dev/null | head -1 | sed -E 's/.*=\s*([0-9]+).*/\1/' || true)"
-  if [ -n "$t" ]; then echo "$t"; else echo ""; fi
+  awk '
+    BEGIN { in_l=0; t=""; lock=0 }
+    /listener[[:space:]]*\{/ { in_l=1; t=""; lock=0; next }
+    in_l && /^[[:space:]]*\}/ {
+      if (lock && t != "") { print t; exit 0 }
+      in_l=0; t=""; lock=0; next
+    }
+    in_l {
+      if ($0 ~ /^[[:space:]]*timeout[[:space:]]*=/) {
+        line=$0
+        sub(/^[^=]*=[[:space:]]*/, "", line)
+        sub(/[^0-9].*/, "", line)
+        if (line ~ /^[0-9]+$/) t=line
+      }
+      if ($0 ~ /on-timeout/ && $0 ~ /(loginctl[[:space:]]+lock-session|hyprlock|swaylock|gtklock|lock_cmd)/) {
+        lock=1
+      }
+    }
+  ' "$conf" 2>/dev/null || true
+}
+
+# swayidle: timeout <sec> <cmd> … — use first timeout whose command locks.
+parse_swayidle_lock_timeout_sec() {
+  local conf="$1"
+  local line sec rest
+  while IFS= read -r line || [ -n "$line" ]; do
+    # strip comments
+    line="${line%%#*}"
+    # trim leading whitespace
+    line="${line#"${line%%[![:space:]]*}"}"
+    case "$line" in
+      timeout[[:space:]]*)
+        ;;
+      *)
+        continue
+        ;;
+    esac
+    # shellcheck disable=SC2086
+    set -- $line
+    # $1=timeout $2=sec $3…=cmd
+    [ "${1-}" = "timeout" ] || continue
+    sec="${2-}"
+    case "$sec" in
+      ''|*[!0-9]*) continue ;;
+    esac
+    shift 2 || continue
+    rest="$*"
+    if echo "$rest" | grep -qiE 'hyprlock|swaylock|gtklock|loginctl[[:space:]]+lock|lock-session|lock_cmd'; then
+      echo "$sec"
+      return 0
+    fi
+  done < "$conf"
+  echo ""
 }
 
 has_lock_path() {
   local conf="$1"
-  grep -qiE 'hyprlock|swaylock|gtklock|loginctl lock|lock_cmd|lock-session' "$conf" 2>/dev/null
+  grep -qiE 'hyprlock|swaylock|gtklock|loginctl[[:space:]]+lock|lock_cmd|lock-session' "$conf" 2>/dev/null
+}
+
+apply_sl_timeout() {
+  local kind="$1" conf="$2" to="$3"
+  SL_CONFIG="$conf"
+  if [ -n "$to" ]; then
+    if [ "$to" -le "$SCREEN_LOCK_MAX_SEC" ]; then
+      SL_STATUS="pass"
+      SL_DETAIL="${kind} lock timeout ${to}s ≤ ${SCREEN_LOCK_MAX_SEC}s (${conf})"
+    else
+      SL_STATUS="fail"
+      SL_DETAIL="${kind} lock timeout ${to}s > ${SCREEN_LOCK_MAX_SEC}s"
+      SL_FIX="Edit ${conf}: set lock listener timeout ≤ ${SCREEN_LOCK_MAX_SEC}"
+    fi
+  else
+    SL_STATUS="unknown"
+    SL_DETAIL="${kind} present but no lock-bearing timeout parsed (${conf})"
+  fi
 }
 
 if [ -n "$FOUND_IDLE_CONF" ]; then
-  SL_CONFIG="$FOUND_IDLE_CONF"
-  TO="$(parse_timeout_sec "$FOUND_IDLE_CONF")"
+  TO="$(parse_hypridle_lock_timeout_sec "$FOUND_IDLE_CONF")"
   if has_lock_path "$FOUND_IDLE_CONF"; then
-    if [ -n "$TO" ]; then
-      if [ "$TO" -le "$SCREEN_LOCK_MAX_SEC" ]; then
-        SL_STATUS="pass"
-        SL_DETAIL="hypridle timeout ${TO}s ≤ ${SCREEN_LOCK_MAX_SEC}s (${FOUND_IDLE_CONF})"
-      else
-        SL_STATUS="fail"
-        SL_DETAIL="hypridle timeout ${TO}s > ${SCREEN_LOCK_MAX_SEC}s"
-        SL_FIX="Edit ${FOUND_IDLE_CONF}: set listener timeout ≤ ${SCREEN_LOCK_MAX_SEC}"
-      fi
-    else
-      SL_STATUS="unknown"
-      SL_DETAIL="hypridle present but no timeout= parsed (${FOUND_IDLE_CONF})"
-    fi
+    apply_sl_timeout "hypridle" "$FOUND_IDLE_CONF" "$TO"
   else
     SL_STATUS="fail"
     SL_DETAIL="idle config found but no lock command path"
+    SL_CONFIG="$FOUND_IDLE_CONF"
   fi
-elif pgrep -x hypridle >/dev/null 2>&1 || pgrep -x swayidle >/dev/null 2>&1; then
-  SL_STATUS="unknown"
-  SL_DETAIL="idle daemon running but config file not found"
-elif [ -n "$LOCK_BIN" ]; then
-  SL_STATUS="fail"
-  SL_DETAIL="${LOCK_BIN} installed but no hypridle/swayidle config detected"
-  SL_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/hypridle.conf"
 else
-  SL_STATUS="fail"
-  SL_DETAIL="no hypridle/swayidle config or lock binary detected"
-  SL_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/hypridle.conf"
+  # ST-04: parse swayidle configs when hypridle is absent
+  FOUND_SWAY=""
+  for f in "${SWAYIDLE_CANDIDATES[@]}"; do
+    if [ -r "$f" ]; then FOUND_SWAY="$f"; break; fi
+  done
+  if [ -n "$FOUND_SWAY" ]; then
+    TO="$(parse_swayidle_lock_timeout_sec "$FOUND_SWAY")"
+    if has_lock_path "$FOUND_SWAY"; then
+      apply_sl_timeout "swayidle" "$FOUND_SWAY" "$TO"
+    else
+      # sway/config may exist without swayidle lock lines
+      SL_STATUS="unknown"
+      SL_DETAIL="swayidle candidate found but no lock timeout parsed (${FOUND_SWAY})"
+      SL_CONFIG="$FOUND_SWAY"
+    fi
+  elif pgrep -x hypridle >/dev/null 2>&1 || pgrep -x swayidle >/dev/null 2>&1; then
+    SL_STATUS="unknown"
+    SL_DETAIL="idle daemon running but config file not found"
+  elif [ -n "$LOCK_BIN" ]; then
+    SL_STATUS="fail"
+    SL_DETAIL="${LOCK_BIN} installed but no hypridle/swayidle config detected"
+    SL_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/hypridle.conf"
+  else
+    SL_STATUS="fail"
+    SL_DETAIL="no hypridle/swayidle config or lock binary detected"
+    SL_CONFIG="${XDG_CONFIG_HOME:-$HOME/.config}/hypr/hypridle.conf"
+  fi
 fi
 
 # --- AV: antivirus package present ------------------------------------------
@@ -202,6 +294,7 @@ AV_DETAIL="none detected"
 AV_FIX="sudo pacman -S clamav   # or install your org EDR (CrowdStrike / SentinelOne / MDE / Sophos)"
 AV_CONFIG=""
 
+# chkrootkit / rkhunter are rootkit scanners, not AV — do not let them alone satisfy pass.
 AV_PKGS=(
   clamav clamav-daemon clamd
   crowdstrike falcon-sensor
@@ -213,7 +306,6 @@ AV_PKGS=(
   avg
   avast
   kaspersky
-  chkrootkit rkhunter
 )
 AV_BINS=(clamscan clamdscan freshclam falcon-sensor mdatp)
 AV_HIT=""
@@ -316,19 +408,46 @@ AU_TIMERS=(
   dnf-automatic.timer
   packagekit.timer
 )
+
+# Pass only when genuinely scheduled: is-active, or is-enabled in {enabled,enabled-runtime}.
+# static / indirect / generated alone are NOT pass.
+timer_genuinely_scheduled() {
+  local scope="$1"   # "" or "--user"
+  local unit="$2"
+  local st en
+  if [ -n "$scope" ]; then
+    st="$(systemctl --user is-active "$unit" 2>/dev/null || true)"
+    en="$(systemctl --user is-enabled "$unit" 2>/dev/null || true)"
+  else
+    st="$(systemctl is-active "$unit" 2>/dev/null || true)"
+    en="$(systemctl is-enabled "$unit" 2>/dev/null || true)"
+  fi
+  case "$st" in
+    active|activating) return 0 ;;
+  esac
+  case "$en" in
+    enabled|enabled-runtime) return 0 ;;
+  esac
+  return 1
+}
+
 for t in "${AU_TIMERS[@]}"; do
-  if systemctl is-enabled "$t" >/dev/null 2>&1 \
-    || systemctl --user is-enabled "$t" >/dev/null 2>&1 \
-    || systemctl is-active "$t" >/dev/null 2>&1 \
-    || systemctl --user is-active "$t" >/dev/null 2>&1; then
+  if timer_genuinely_scheduled "" "$t"; then
     AU_HIT="$t"
+    break
+  fi
+  if timer_genuinely_scheduled "--user" "$t"; then
+    AU_HIT="user:$t"
     break
   fi
 done
 
 if [ -z "$AU_HIT" ] && have_cmd systemctl; then
-  # Broader scan: any enabled timer mentioning update/upgrade
-  CAND="$(systemctl list-timers --all --no-pager 2>/dev/null | grep -iE 'update|upgrade|pacman|omarchy' | head -1 || true)"
+  # Broader scan: list-timers WITHOUT --all so only timers with a real NEXT fire.
+  CAND="$(systemctl list-timers --no-pager 2>/dev/null | grep -iE 'update|upgrade|pacman|omarchy' | head -1 || true)"
+  if [ -z "$CAND" ]; then
+    CAND="$(systemctl --user list-timers --no-pager 2>/dev/null | grep -iE 'update|upgrade|pacman|omarchy' | head -1 || true)"
+  fi
   if [ -n "$CAND" ]; then
     AU_HIT="timer:$(echo "$CAND" | awk '{print $NF}')"
   fi
@@ -336,7 +455,7 @@ fi
 
 if [ -n "$AU_HIT" ]; then
   AU_STATUS="pass"
-  AU_DETAIL="enabled/active ${AU_HIT}"
+  AU_DETAIL="scheduled ${AU_HIT}"
   AU_FIX=""
 else
   # Honest Unknown — Omarchy often relies on manual Update menu, not a timer

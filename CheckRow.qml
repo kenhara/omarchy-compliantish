@@ -133,7 +133,9 @@ Item {
           width: copyFixLabel.implicitWidth + Style.space(14)
           height: Style.space(24)
           radius: 6
-          color: Qt.rgba(root.contentForeground.r, root.contentForeground.g, root.contentForeground.b, 0.05)
+          color: copyFixMa.containsMouse
+            ? Qt.rgba(root.contentForeground.r, root.contentForeground.g, root.contentForeground.b, 0.12)
+            : Qt.rgba(root.contentForeground.r, root.contentForeground.g, root.contentForeground.b, 0.05)
           border.width: 1
           border.color: Qt.rgba(root.contentForeground.r, root.contentForeground.g, root.contentForeground.b, 0.12)
 
@@ -147,7 +149,9 @@ Item {
           }
 
           MouseArea {
+            id: copyFixMa
             anchors.fill: parent
+            hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
             onClicked: if (root.store) root.store.copyFix(root.check)
           }
@@ -158,7 +162,9 @@ Item {
           width: openCfgLabel.implicitWidth + Style.space(14)
           height: Style.space(24)
           radius: 6
-          color: Qt.rgba(root.contentForeground.r, root.contentForeground.g, root.contentForeground.b, 0.05)
+          color: openCfgMa.containsMouse
+            ? Qt.rgba(root.contentForeground.r, root.contentForeground.g, root.contentForeground.b, 0.12)
+            : Qt.rgba(root.contentForeground.r, root.contentForeground.g, root.contentForeground.b, 0.05)
           border.width: 1
           border.color: Qt.rgba(root.contentForeground.r, root.contentForeground.g, root.contentForeground.b, 0.12)
 
@@ -172,7 +178,9 @@ Item {
           }
 
           MouseArea {
+            id: openCfgMa
             anchors.fill: parent
+            hoverEnabled: true
             cursorShape: Qt.PointingHandCursor
             onClicked: if (root.store) root.store.openConfig(root.check)
           }

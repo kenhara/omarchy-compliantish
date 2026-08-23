@@ -3,7 +3,7 @@ import Quickshell
 import qs.Commons
 import qs.Ui
 
-// Security Theater bar entry — Space Jockey / clock pattern:
+// Security Theater bar entry:
 // BarWidget loads nested Panel.qml via Loader. kinds: ["bar-widget"] only.
 BarWidget {
   id: root
