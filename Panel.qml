@@ -104,7 +104,7 @@ Panel {
           spacing: Style.space(4)
 
           Text {
-            text: "SECURITY THEATER"
+            text: "COMPLIANTISH"
             color: root.contentForeground
             font.family: root.contentFontFamily
             font.pixelSize: Style.font.title

@@ -141,7 +141,7 @@ Official Drata: blue help links only. We can do better **locally** without becom
 ## 6. UX sketch (v0.4)
 
 ```
-SECURITY THEATER              [Checks ▾] [Refresh]
+COMPLIANTISH              [Checks ▾] [Refresh]
                              refreshed 2m ago
 
 ┌ Checks menu ─────────────────────────────────┐
