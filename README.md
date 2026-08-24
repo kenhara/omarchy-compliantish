@@ -10,7 +10,10 @@ probes, a visible **Checks** menu, and a recurring local refresh. Native Omarchy
 **ID:** `kenhara.compliantish`  
 **Author:** Harris Kenny  
 **License:** MIT  
-**Version:** 0.5.15
+**Version:** 0.5.17
+
+### 0.5.17
+- Header: FA lock glyph (`\uf023`) left of COMPLIANTISH; Checks + Refresh moved off the title row (full-width title plane).
 
 ### 0.5.15
 - Checklist: tintable FA/Nerd glyphs per check (HD hdd / SL lock / AV shield / PW key / AU sync) replace `●`; status color tint kept. Body fontSize. Badges / Copy fix / bar chip unchanged.

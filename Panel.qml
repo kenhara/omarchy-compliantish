@@ -108,15 +108,20 @@ Panel {
             NumberAnimation { duration: 160; easing.type: Easing.OutCubic }
           }
 
-          // Header — title + Checks + Refresh
-          Row {
+          // Header — full-width title plane; Checks + Refresh on their own row
+          Column {
             width: parent.width
-            spacing: Style.space(8)
+            spacing: Style.space(6)
 
-            Column {
-              width: parent.width - checksBtn.width - refreshBtn.width - Style.space(16)
-              spacing: Style.space(4)
-
+            Row {
+              spacing: Style.space(8)
+              Text {
+                text: "\uf023"
+                color: root.contentForeground
+                font.family: root.contentFontFamily
+                font.pixelSize: Style.font.body
+                anchors.verticalCenter: parent.verticalCenter
+              }
               Text {
                 text: "COMPLIANTISH"
                 color: root.contentForeground
@@ -124,79 +129,90 @@ Panel {
                 font.pixelSize: Style.font.body
                 font.bold: true
                 font.letterSpacing: 2.4
+                anchors.verticalCenter: parent.verticalCenter
+              }
+            }
+
+            Text {
+              text: {
+                if (!liveStore) return "device checks"
+                if (liveStore.loading) return "device checks · probing…"
+                if (liveStore.lastError) return liveStore.lastError
+                return "device checks · refreshed " + (liveStore.lastUpdatedText || "—")
+              }
+              color: root.contentForeground
+              opacity: 0.45
+              font.family: root.contentFontFamily
+              font.pixelSize: Style.font.bodySmall
+              elide: Text.ElideRight
+              width: parent.width
+            }
+
+            Row {
+              width: parent.width
+              spacing: Style.space(8)
+
+              Item {
+                width: Math.max(0, parent.width - checksBtn.width - refreshBtn.width - parent.spacing * 2)
+                height: 1
               }
 
-              Text {
-                text: {
-                  if (!liveStore) return "device checks"
-                  if (liveStore.loading) return "device checks · probing…"
-                  if (liveStore.lastError) return liveStore.lastError
-                  return "device checks · refreshed " + (liveStore.lastUpdatedText || "—")
+              Rectangle {
+                id: checksBtn
+                width: checksLabel.implicitWidth + Style.space(14)
+                height: Style.space(26)
+                radius: 6
+                color: (root.checksMenuOpen || checksMa.containsMouse)
+                  ? Qt.rgba(root.contentForeground.r, root.contentForeground.g, root.contentForeground.b, 0.12)
+                  : root.surfaceColor
+                border.width: 1
+                border.color: Qt.rgba(root.contentForeground.r, root.contentForeground.g, root.contentForeground.b, 0.12)
+
+                Text {
+                  id: checksLabel
+                  anchors.centerIn: parent
+                  text: root.checksMenuOpen ? "Checks ▴" : "Checks ▾"
+                  color: root.contentForeground
+                  font.family: root.contentFontFamily
+                  font.pixelSize: Style.font.bodySmall
                 }
-                color: root.contentForeground
-                opacity: 0.45
-                font.family: root.contentFontFamily
-                font.pixelSize: Style.font.bodySmall
-                elide: Text.ElideRight
-                width: parent.width
-              }
-            }
 
-            Rectangle {
-              id: checksBtn
-              width: checksLabel.implicitWidth + Style.space(14)
-              height: Style.space(26)
-              radius: 6
-              color: (root.checksMenuOpen || checksMa.containsMouse)
-                ? Qt.rgba(root.contentForeground.r, root.contentForeground.g, root.contentForeground.b, 0.12)
-                : root.surfaceColor
-              border.width: 1
-              border.color: Qt.rgba(root.contentForeground.r, root.contentForeground.g, root.contentForeground.b, 0.12)
-
-              Text {
-                id: checksLabel
-                anchors.centerIn: parent
-                text: root.checksMenuOpen ? "Checks ▴" : "Checks ▾"
-                color: root.contentForeground
-                font.family: root.contentFontFamily
-                font.pixelSize: Style.font.bodySmall
+                MouseArea {
+                  id: checksMa
+                  anchors.fill: parent
+                  hoverEnabled: true
+                  cursorShape: Qt.PointingHandCursor
+                  onClicked: root.checksMenuOpen = !root.checksMenuOpen
+                }
               }
 
-              MouseArea {
-                id: checksMa
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-                onClicked: root.checksMenuOpen = !root.checksMenuOpen
-              }
-            }
+              Rectangle {
+                id: refreshBtn
+                width: refreshLabel.implicitWidth + Style.space(14)
+                height: Style.space(26)
+                radius: 6
+                color: refreshMa.containsMouse
+                  ? Qt.rgba(root.contentForeground.r, root.contentForeground.g, root.contentForeground.b, 0.12)
+                  : root.surfaceColor
+                border.width: 1
+                border.color: Qt.rgba(root.contentForeground.r, root.contentForeground.g, root.contentForeground.b, 0.12)
 
-            Rectangle {
-              id: refreshBtn
-              width: refreshLabel.implicitWidth + Style.space(14)
-              height: Style.space(26)
-              radius: 6
-              color: refreshMa.containsMouse
-                ? Qt.rgba(root.contentForeground.r, root.contentForeground.g, root.contentForeground.b, 0.12)
-                : root.surfaceColor
-              border.width: 1
-              border.color: Qt.rgba(root.contentForeground.r, root.contentForeground.g, root.contentForeground.b, 0.12)
+                Text {
+                  id: refreshLabel
+                  anchors.centerIn: parent
+                  text: liveStore && liveStore.loading ? "…" : "Refresh"
+                  color: root.contentForeground
+                  font.family: root.contentFontFamily
+                  font.pixelSize: Style.font.bodySmall
+                }
 
-              Text {
-                id: refreshLabel
-                anchors.centerIn: parent
-                text: liveStore && liveStore.loading ? "…" : "Refresh"
-                color: root.contentForeground
-                font.family: root.contentFontFamily
-                font.pixelSize: Style.font.bodySmall
-              }
-
-              MouseArea {
-                id: refreshMa
-                anchors.fill: parent
-                hoverEnabled: true
-                cursorShape: Qt.PointingHandCursor
-                onClicked: if (liveStore) liveStore.refresh()
+                MouseArea {
+                  id: refreshMa
+                  anchors.fill: parent
+                  hoverEnabled: true
+                  cursorShape: Qt.PointingHandCursor
+                  onClicked: if (liveStore) liveStore.refresh()
+                }
               }
             }
           }

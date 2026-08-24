@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.17
+
+- Header: FA lock glyph (`\uf023`) left of COMPLIANTISH; Checks + Refresh on a right-aligned toolbar row so title + subheader are full-width.
+
 ## 0.5.15
 
 - Checklist rows: replace colored `●` with tintable per-check FA/Nerd glyphs (HD ``, SL ``, AV ``, PW ``, AU ``; fallback ``), status color tint unchanged (pass=accent / fail=urgent / unknown=amber). Body-sized icons. PASS/FAIL badges, Copy fix, and bar chip unchanged.
