@@ -10,7 +10,10 @@ probes, a visible **Checks** menu, and a recurring local refresh. Native Omarchy
 **ID:** `kenhara.compliantish`  
 **Author:** Harris Kenny  
 **License:** MIT  
-**Version:** 0.5.11
+**Version:** 0.5.12
+
+### 0.5.12
+- Panel shell: KeyboardPanel + PanelKeyCatcher (rocketlauncher oracle); CheckRow inlined as CheckRowDelegate (no qmldir sibling under Loader); toggle warns when panelLoader.item is null.
 
 ### 0.5.11
 - F1: replace Style.font.title/subtitle with Style.font.body (oracle rocketlauncher tokens only) so panels load on VPS/smoke Omarchy.
@@ -196,7 +199,7 @@ rm -rf ~/.cache/compliantish
 manifest.json          plugin manifest (id kenhara.compliantish)
 BarWidget.qml          bar entry + Loader → Panel
 Panel.qml              Checks menu + checklist + Tier A actions
-CheckRow.qml           one control row (● + full name)
+CheckRow.qml           reference row UI (Panel inlines CheckRowDelegate)
 ComplianceStore.qml    Process → scripts/probe.sh + cache + enable filters + Timer
 qmldir
 scripts/probe.sh       JSON on stdout (always five checks)

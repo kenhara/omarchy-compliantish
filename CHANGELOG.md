@@ -1,5 +1,11 @@
 # Changelog
 
+## 0.5.12
+
+- Wrap Panel UI in KeyboardPanel + PanelKeyCatcher (rocketlauncher oracle shell) so the popout opens.
+- Inline CheckRow as `component CheckRowDelegate` inside Panel.qml (no qmldir sibling type under Loader).
+- BarWidget: loud console.warn on toggle when panelLoader.item is null.
+
 ## 0.5.11
 
 - F1: replace Style.font.title/subtitle with Style.font.body (oracle rocketlauncher tokens only) so panels load on VPS/smoke Omarchy.
