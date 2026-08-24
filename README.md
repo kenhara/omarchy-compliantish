@@ -10,7 +10,10 @@ probes, a visible **Checks** menu, and a recurring local refresh. Native Omarchy
 **ID:** `kenhara.compliantish`  
 **Author:** Harris Kenny  
 **License:** MIT  
-**Version:** 0.5.19
+**Version:** 0.5.20
+
+### 0.5.20
+- Cache read rejects symlink/FIFO (O_NOFOLLOW|O_NONBLOCK + regular-file check).
 
 ### 0.5.19
 - Bound probe/cache I/O (marketplace #2220)
@@ -222,6 +225,7 @@ CheckRow.qml           reference row UI (Panel inlines CheckRowDelegate)
 ComplianceStore.qml    Process → scripts/probe.sh + cache + enable filters + Timer
 qmldir
 scripts/probe.sh       JSON on stdout (always five checks)
+scripts/load-cache.py  bounded cache read (reject symlink/FIFO)
 LICENSE                MIT
 README.md
 CHANGELOG.md

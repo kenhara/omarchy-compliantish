@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.20
+
+- Harden cache read against symlink/FIFO trust path: `scripts/load-cache.py` opens `O_RDONLY|O_NOFOLLOW|O_NONBLOCK`, requires a regular file, and reads at most cap+1 bytes. Missing / symlink / FIFO / oversize exit 1 (QML re-probes). Valid regular file emits raw bytes and exits 0.
+
 ## 0.5.19
 
 - Bound probe/cache I/O (marketplace #2220): clamp probe fields, cap JSON at 32KiB, bounded probe stdout with producer termination, replace unbounded FileView cache with `head -c` read and argv writer.

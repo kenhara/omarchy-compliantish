@@ -25,6 +25,7 @@ Item {
     .replace(/^file:\/\//, "")
     .replace(/\/$/, "")
   readonly property string probePath: pluginDir + "/scripts/probe.sh"
+  readonly property string loadCachePath: pluginDir + "/scripts/load-cache.py"
 
   property var checks: []
   property var meta: ({})
@@ -527,7 +528,9 @@ Item {
   Process {
     id: cacheReadProc
     running: false
-    command: ["head", "-c", String(store.maxCacheBytes + 1), store.cachePath]
+    // Trust-path cache read (reject symlink/FIFO); not a raw head(1) byte cap.
+    command: ["python3", "-B", store.loadCachePath, "--file", store.cachePath, "--cap", String(store.maxCacheBytes)]
+    environment: ({ "PYTHONDONTWRITEBYTECODE": "1" })
     stdout: SplitParser {
       splitMarker: ""
       onRead: function(chunk) {
@@ -536,6 +539,7 @@ Item {
         if (store.cacheBuf.length > store.maxCacheBytes) {
           store.cacheOverflow = true
           store.cacheBuf = ""
+          cacheReadProc.running = false
         }
       }
     }

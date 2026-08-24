@@ -22,3 +22,5 @@ docs/preview/.cache/
 docs/preview/node_modules/
 docs/preview/.parcel-cache/
 docs/preview/dist/
+__pycache__/
+*.pyc

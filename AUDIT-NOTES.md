@@ -1,5 +1,11 @@
 # Compliantish 0.5.1 — audit fix map
 
+## 0.5.20 / HC-05
+
+| ID | Severity | Fix |
+|----|----------|-----|
+| **HC-05** | HIGH | Cache read: replace `head -c` with `scripts/load-cache.py` (O_RDONLY + O_NOFOLLOW + O_NONBLOCK, `fstat` S_ISREG, cap+1). Symlink / FIFO / missing / not regular / oversize → exit 1, no body (QML re-probes). Valid regular file → raw bytes, exit 0. Do not emit `{"cleared": true}` on success. |
+
 False-PASS hardening and polish from the Compliantish audit. Product
 principles unchanged: read-only / no-sudo / remediation = copy/open only;
 **Unknown ≠ fail**; unofficial Drata/Vanta disclaimer; theme tokens; pointer +
