@@ -10,7 +10,10 @@ probes, a visible **Checks** menu, and a recurring local refresh. Native Omarchy
 **ID:** `kenhara.compliantish`  
 **Author:** Harris Kenny  
 **License:** MIT  
-**Version:** 0.5.12
+**Version:** 0.5.13
+
+### 0.5.13
+- Bar chip: fixed 🔒 (no emoji swap); WidgetButton `active` → Omarchy urgent tint on real fail only (unknown stays normal).
 
 ### 0.5.12
 - Panel shell: KeyboardPanel + PanelKeyCatcher (rocketlauncher oracle); CheckRow inlined as CheckRowDelegate (no qmldir sibling under Loader); toggle warns when panelLoader.item is null.

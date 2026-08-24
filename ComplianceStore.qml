@@ -99,8 +99,8 @@ Item {
     if (store.unknownCount > 0 || store.totalCount === 0) return "unknown"
     return "pass"
   }
-  // Bar glyph: lock when all enabled checks pass; unlocked otherwise (glyph only on bar)
-  readonly property string barGlyph: store.worstStatus === "pass" ? "🔒" : "🔓"
+  // Bar glyph: fixed lock; WidgetButton.active tints urgent on fail (no emoji swap)
+  readonly property string barGlyph: "🔒"
   readonly property string barLabel: store.barGlyph
   // Visible UI lists use full names; JSON `code` keys stay internal.
   readonly property string failListText: {

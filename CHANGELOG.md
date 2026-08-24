@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.13
+
+- Bar chip: fixed 🔒 glyph (no lock/unlock swap); WidgetButton `active` when any enabled check fails → Omarchy `bar.urgent` / Color.urgent tint. Unknown stays normal (Unknown ≠ fail).
+
 ## 0.5.12
 
 - Wrap Panel UI in KeyboardPanel + PanelKeyCatcher (rocketlauncher oracle shell) so the popout opens.

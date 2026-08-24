@@ -163,13 +163,6 @@ BarWidget {
     complianceStore.panelOpen = root.opened
   }
 
-  function worstAccent() {
-    var w = complianceStore.worstStatus
-    if (w === "fail") return Color.urgent
-    if (w === "unknown") return Qt.rgba(1.0, 0.82, 0.48, 1.0)
-    return Color.accent
-  }
-
   onBarChanged: injectPanel()
   onSettingsChanged: {
     injectPanel()
@@ -240,8 +233,9 @@ BarWidget {
     id: button
     anchors.fill: parent
     bar: root.bar
-    // Glyph-only chip (🔒/🔓); fraction stays in tooltip
+    // Fixed lock glyph; Omarchy urgent tint when any enabled check fails
     text: complianceStore.barLabel || "🔒"
+    active: complianceStore.worstStatus === "fail"
     horizontalMargin: 6
     tooltipText: {
       var tot = complianceStore.totalCount
