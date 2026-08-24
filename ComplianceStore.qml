@@ -4,7 +4,7 @@ import Quickshell.Io
 
 // Local probe runner + cache for Compliantish.
 // Read-only: runs scripts/probe.sh, no network, no sudo.
-QtObject {
+Item {
   id: store
 
   property int refreshIntervalSec: 900
