@@ -10,7 +10,10 @@ probes, a visible **Checks** menu, and a recurring local refresh. Native Omarchy
 **ID:** `kenhara.compliantish`  
 **Author:** Harris Kenny  
 **License:** MIT  
-**Version:** 0.5.18
+**Version:** 0.5.19
+
+### 0.5.19
+- Bound probe/cache I/O (marketplace #2220)
 
 ### 0.5.18
 - Marketplace preview.png is the live Omarchy smoke screenshot.

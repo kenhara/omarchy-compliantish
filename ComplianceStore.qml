@@ -36,6 +36,11 @@ Item {
   property var notifiedFails: ({})   // code -> YYYY-MM-DD
 
   property string probeBuf: ""
+  readonly property int maxProbeBytes: 65536
+  property bool probeOverflow: false
+  readonly property int maxCacheBytes: 262144
+  property string cacheBuf: ""
+  property bool cacheOverflow: false
 
   function isCheckEnabled(code) {
     var c = String(code || "")
@@ -379,11 +384,13 @@ Item {
   }
 
   function persistToDisk(obj) {
-    // FileView.setText mkpath — no mkdir Process race.
     var body = JSON.stringify(obj || buildCacheObject(), null, 2) + "\n"
-    try {
-      cacheFile.setText(body)
-    } catch (e) {}
+    cacheWriteProc.command = [
+      "bash", "-c",
+      'dir=$(dirname "$1"); mkdir -p "$dir" && printf "%s" "$2" > "$1"',
+      "st-write", store.cachePath, body
+    ]
+    cacheWriteProc.running = true
   }
 
   function buildCacheObject() {
@@ -408,12 +415,18 @@ Item {
     store.loading = true
     store.lastError = ""
     store.probeBuf = ""
+    store.probeOverflow = false
     probeProc.command = ["bash", store.probePath, String(store.screenLockMaxSec)]
     probeProc.running = true
   }
 
   function onProbeFinished(exitCode) {
     store.loading = false
+    if (store.probeOverflow) {
+      store.probeBuf = ""
+      store.probeOverflow = false
+      return
+    }
     var raw = store.probeBuf || ""
     store.probeBuf = ""
     if (!raw.length) {
@@ -458,7 +471,9 @@ Item {
   function bootstrap() {
     if (!store.checks || !store.checks.length)
       store.checks = store.emptyChecks()
-    cacheFile.reload()
+    store.cacheBuf = ""
+    store.cacheOverflow = false
+    cacheReadProc.running = true
   }
 
   function onCacheLoaded(text) {
@@ -509,13 +524,37 @@ Item {
     onTriggered: store.toastText = ""
   }
 
-  FileView {
-    id: cacheFile
-    path: store.cachePath
-    watchChanges: false
-    printErrors: false
-    onLoaded: store.onCacheLoaded(text())
-    onLoadFailed: store.refresh()
+  Process {
+    id: cacheReadProc
+    running: false
+    command: ["head", "-c", String(store.maxCacheBytes + 1), store.cachePath]
+    stdout: SplitParser {
+      splitMarker: ""
+      onRead: function(chunk) {
+        if (store.cacheOverflow) return
+        store.cacheBuf += chunk
+        if (store.cacheBuf.length > store.maxCacheBytes) {
+          store.cacheOverflow = true
+          store.cacheBuf = ""
+        }
+      }
+    }
+    onExited: function(exitCode, exitStatus) {
+      var txt = store.cacheBuf
+      var over = store.cacheOverflow
+      store.cacheBuf = ""
+      store.cacheOverflow = false
+      if (over || exitCode !== 0) {
+        store.refresh()
+        return
+      }
+      store.onCacheLoaded(txt)
+    }
+  }
+
+  Process {
+    id: cacheWriteProc
+    running: false
   }
 
   Process {
@@ -551,7 +590,17 @@ Item {
     id: probeProc
     running: false
     stdout: SplitParser {
-      onRead: function(line) { store.probeBuf += line + "\n" }
+      splitMarker: ""
+      onRead: function(chunk) {
+        if (store.probeOverflow) return
+        store.probeBuf += chunk
+        if (store.probeBuf.length > store.maxProbeBytes) {
+          store.probeOverflow = true
+          store.probeBuf = ""
+          store.lastError = "probe output exceeded " + store.maxProbeBytes + " bytes"
+          probeProc.running = false
+        }
+      }
     }
     stderr: SplitParser {
       onRead: function(line) {

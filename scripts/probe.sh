@@ -5,6 +5,16 @@
 # Always emits all five agent checks (HD, SL, AV, PW, AU) — enable flags live in the QML store / Checks menu.
 set -euo pipefail
 
+export LC_ALL=C
+readonly MAX_FIELD=512
+readonly MAX_PATH=4096
+readonly MAX_JSON=32768
+clamp() {
+  local max="$1" s="${2-}"
+  if [ "${#s}" -gt "$max" ]; then s="${s:0:max}"; fi
+  printf '%s' "$s"
+}
+
 SCREEN_LOCK_MAX_SEC="${1:-${SCREEN_LOCK_MAX_SEC:-900}}"
 case "$SCREEN_LOCK_MAX_SEC" in
   ''|*[!0-9]*) SCREEN_LOCK_MAX_SEC=900 ;;
@@ -466,6 +476,11 @@ fi
 # --- emit JSON --------------------------------------------------------------
 emit_check() {
   local code="$1" label="$2" status="$3" detail="$4" fix="$5" config="$6"
+  code="$(clamp 8 "$code")"
+  status="$(clamp 16 "$status")"
+  detail="$(clamp "$MAX_FIELD" "$detail")"
+  fix="$(clamp "$MAX_FIELD" "$fix")"
+  config="$(clamp "$MAX_PATH" "$config")"
   printf '{'
   printf '"code":"%s",' "$(json_escape "$code")"
   printf '"label":"%s",' "$(json_escape "$label")"
@@ -476,25 +491,33 @@ emit_check() {
   printf '}'
 }
 
-printf '{'
-printf '"version":1,'
-printf '"probedAt":"%s",' "$(json_escape "$PROBED_AT")"
-printf '"screenLockMaxSec":%s,' "$SCREEN_LOCK_MAX_SEC"
-printf '"meta":{'
-printf '"hostname":"%s",' "$(json_escape "$HOSTNAME")"
-printf '"osPretty":"%s",' "$(json_escape "$OS_PRETTY")"
-printf '"kernel":"%s",' "$(json_escape "$KERNEL")"
-printf '"machineId":"%s"' "$(json_escape "$MACHINE_ID")"
-printf '},'
-printf '"checks":['
-emit_check "HD" "Hard drive encryption" "$HD_STATUS" "$HD_DETAIL" "$HD_FIX" "$HD_CONFIG"
-printf ','
-emit_check "SL" "Screen lock" "$SL_STATUS" "$SL_DETAIL" "$SL_FIX" "$SL_CONFIG"
-printf ','
-emit_check "AV" "Antivirus" "$AV_STATUS" "$AV_DETAIL" "$AV_FIX" "$AV_CONFIG"
-printf ','
-emit_check "PW" "Password manager" "$PW_STATUS" "$PW_DETAIL" "$PW_FIX" "$PW_CONFIG"
-printf ','
-emit_check "AU" "Automatic updates" "$AU_STATUS" "$AU_DETAIL" "$AU_FIX" "$AU_CONFIG"
-printf ']'
-printf '}\n'
+build_json() {
+  printf '{'
+  printf '"version":1,'
+  printf '"probedAt":"%s",' "$(json_escape "$PROBED_AT")"
+  printf '"screenLockMaxSec":%s,' "$SCREEN_LOCK_MAX_SEC"
+  printf '"meta":{'
+  printf '"hostname":"%s",' "$(json_escape "$(clamp "$MAX_FIELD" "$HOSTNAME")")"
+  printf '"osPretty":"%s",' "$(json_escape "$(clamp "$MAX_FIELD" "$OS_PRETTY")")"
+  printf '"kernel":"%s",' "$(json_escape "$(clamp "$MAX_FIELD" "$KERNEL")")"
+  printf '"machineId":"%s"' "$(json_escape "$(clamp "$MAX_FIELD" "$MACHINE_ID")")"
+  printf '},'
+  printf '"checks":['
+  emit_check "HD" "Hard drive encryption" "$HD_STATUS" "$HD_DETAIL" "$HD_FIX" "$HD_CONFIG"
+  printf ','
+  emit_check "SL" "Screen lock" "$SL_STATUS" "$SL_DETAIL" "$SL_FIX" "$SL_CONFIG"
+  printf ','
+  emit_check "AV" "Antivirus" "$AV_STATUS" "$AV_DETAIL" "$AV_FIX" "$AV_CONFIG"
+  printf ','
+  emit_check "PW" "Password manager" "$PW_STATUS" "$PW_DETAIL" "$PW_FIX" "$PW_CONFIG"
+  printf ','
+  emit_check "AU" "Automatic updates" "$AU_STATUS" "$AU_DETAIL" "$AU_FIX" "$AU_CONFIG"
+  printf ']'
+  printf '}'
+}
+
+OUT="$(build_json)"
+if [ "${#OUT}" -gt "$MAX_JSON" ]; then
+  OUT='{"version":1,"probedAt":"'"$(json_escape "$PROBED_AT")"'","meta":{},"error":"probe output exceeded '"$MAX_JSON"' bytes","checks":[]}'
+fi
+printf '%s\n' "$OUT"

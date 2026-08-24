@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.19
+
+- Bound probe/cache I/O (marketplace #2220): clamp probe fields, cap JSON at 32KiB, bounded probe stdout with producer termination, replace unbounded FileView cache with `head -c` read and argv writer.
+
 ## 0.5.18
 
 - Marketplace preview.png is the live Omarchy smoke screenshot.
