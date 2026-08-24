@@ -128,11 +128,10 @@ Panel {
 
               Text {
                 text: {
-                  if (!liveStore) return "no store"
-                  var s = "refreshed " + (liveStore.lastUpdatedText || "—")
-                  if (liveStore.loading) s = "probing…"
-                  else if (liveStore.lastError) s = liveStore.lastError
-                  return s
+                  if (!liveStore) return "device checks"
+                  if (liveStore.loading) return "device checks · probing…"
+                  if (liveStore.lastError) return liveStore.lastError
+                  return "device checks · refreshed " + (liveStore.lastUpdatedText || "—")
                 }
                 color: root.contentForeground
                 opacity: 0.45
@@ -491,7 +490,7 @@ Panel {
 
             Text {
               width: parent.width
-              text: "Unofficial · not affiliated with Drata or Vanta · Unknown ≠ fail"
+              text: "Unofficial · not Drata or Vanta · Unknown ≠ fail"
               color: root.contentForeground
               opacity: 0.22
               font.family: root.contentFontFamily
