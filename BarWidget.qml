@@ -233,9 +233,10 @@ BarWidget {
     id: button
     anchors.fill: parent
     bar: root.bar
-    // Fixed lock glyph; Omarchy urgent tint when any enabled check fails
-    text: complianceStore.barLabel || "🔒"
+    // FA lock (\uf023) — tintable; WidgetButton.active → bar.urgent on fail
+    text: complianceStore.barLabel || "\uf023"
     active: complianceStore.worstStatus === "fail"
+    fontSize: Style.font.caption
     horizontalMargin: 6
     tooltipText: {
       var tot = complianceStore.totalCount

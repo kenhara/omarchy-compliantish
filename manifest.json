@@ -2,7 +2,7 @@
   "schemaVersion": 1,
   "id": "kenhara.compliantish",
   "name": "Compliantish",
-  "version": "0.5.13",
+  "version": "0.5.14",
   "author": "Harris Kenny",
   "license": "MIT",
   "description": "Local workstation checks for Omarchy — yes, the name is the joke. Disk encryption, screen lock, antivirus, password manager, automatic updates. Unofficial Vanta/Drata-inspired compliance desk; not affiliated. No vendor API.",

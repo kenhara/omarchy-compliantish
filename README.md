@@ -10,7 +10,10 @@ probes, a visible **Checks** menu, and a recurring local refresh. Native Omarchy
 **ID:** `kenhara.compliantish`  
 **Author:** Harris Kenny  
 **License:** MIT  
-**Version:** 0.5.13
+**Version:** 0.5.14
+
+### 0.5.14
+- Bar urgent signal: FA lock `\uf023` (tintable) replaces color emoji 🔒 — WidgetButton `active` tints the chip with `bar.urgent` when any enabled check fails (not a toast). Unknown stays normal. Caption-sized glyph. Opt-in `notifyOnFail` desktop notify-send stays off by default.
 
 ### 0.5.13
 - Bar chip: fixed 🔒 (no emoji swap); WidgetButton `active` → Omarchy urgent tint on real fail only (unknown stays normal).
@@ -126,7 +129,7 @@ omarchy-shell shell rescanPlugins
 
 ## Usage
 
-- **Left-click** the bar status (`● 2/5`) to open/close the panel.
+- **Left-click** the bar lock chip to open/close the panel (urgent/red tint when any enabled check fails; hover tooltip shows pass fraction).
 - **Middle-click** re-runs `scripts/probe.sh`.
 - **Right-click** closes the panel.
 - In the panel header: **Checks** opens the enable/disable menu for all five;
@@ -172,7 +175,7 @@ do not rely on summon as a public API.
 |-----|------|---------|-------------|
 | `refreshIntervalSec` | integer | `900` | Local probe interval (min 60). Shown as `auto every Xm`. |
 | `screenLockMaxSec` | integer | `900` | Screen lock passes when idle→lock timeout ≤ this many seconds (Drata ≤15m; raise to 3600 for Vanta-only). |
-| `notifyOnFail` | bool | `false` | Opt-in `notify-send` once per enabled check per day on transition to fail. |
+| `notifyOnFail` | bool | `false` | Opt-in desktop `notify-send` once per enabled check per day on transition to fail. Separate from the bar urgent chip tint; off by default. |
 | `enableDiskEncryption` | bool | `true` | Include HD encryption (also toggled in **Checks** menu). |
 | `enableScreenLock` | bool | `true` | Include screen lock (also **Checks** menu). |
 | `enableAntivirus` | bool | `true` | Include antivirus (also **Checks** menu). |

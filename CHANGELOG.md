@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.14
+
+- Bar chip: replace color emoji 🔒 with tintable Font Awesome lock `\uf023` (same family as omarchy.system-update’s `\uf021`) so WidgetButton `active` → `bar.urgent` is visible. Caption fontSize. Unknown still not urgent. Opt-in `notifyOnFail` (notify-send) remains separate and off by default.
+
 ## 0.5.13
 
 - Bar chip: fixed 🔒 glyph (no lock/unlock swap); WidgetButton `active` when any enabled check fails → Omarchy `bar.urgent` / Color.urgent tint. Unknown stays normal (Unknown ≠ fail).
