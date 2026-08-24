@@ -2,6 +2,7 @@ import QtQuick
 import Quickshell
 import qs.Commons
 import qs.Ui
+import "."
 
 // Nested details panel for Compliantish (loaded by BarWidget — not a separate kind).
 Panel {

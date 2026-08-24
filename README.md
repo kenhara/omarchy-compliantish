@@ -10,7 +10,10 @@ probes, a visible **Checks** menu, and a recurring local refresh. Native Omarchy
 **ID:** `kenhara.compliantish`  
 **Author:** Harris Kenny  
 **License:** MIT  
-**Version:** 0.5.5
+**Version:** 0.5.8
+
+### 0.5.8
+- Panel `import "."` so Loader resolves CheckRow/sibling types; best-effort panel load error in tooltip.
 
 ### 0.5.5
 - Renamed plugin id `harris.compliantish` → `kenhara.compliantish` (install path `~/.config/omarchy/plugins/kenhara.compliantish`). Display name unchanged.

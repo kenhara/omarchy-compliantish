@@ -204,14 +204,27 @@ BarWidget {
     syncStoreSettings()
   }
 
+  property string panelLoadError: ""
+
   Loader {
     id: panelLoader
     active: true
     source: Qt.resolvedUrl("Panel.qml")
     visible: false
     onLoaded: {
+      root.panelLoadError = ""
       root.injectPanel()
       Qt.callLater(root.injectPanel)
+    }
+    onStatusChanged: {
+      if (status === Loader.Error) {
+        var err = ""
+        try {
+          if (sourceComponent)
+            err = String(sourceComponent.errorString || "")
+        } catch (e) {}
+        root.panelLoadError = err.length ? err : "Panel.qml failed to load"
+      }
     }
   }
 
@@ -232,6 +245,8 @@ BarWidget {
       if (complianceStore.lastUpdatedText)
         tip += " · refreshed " + complianceStore.lastUpdatedText
       tip += " · middle: refresh · right: close"
+      if (root.panelLoadError && root.panelLoadError.length)
+        tip += " · panel load error — see console"
       return tip
     }
     onPressed: function(buttonCode) {
