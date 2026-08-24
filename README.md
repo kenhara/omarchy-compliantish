@@ -10,7 +10,10 @@ probes, a visible **Checks** menu, and a recurring local refresh. Native Omarchy
 **ID:** `kenhara.compliantish`  
 **Author:** Harris Kenny  
 **License:** MIT  
-**Version:** 0.5.8
+**Version:** 0.5.9
+
+### 0.5.9
+- Panel load failure: console.warn(moduleName + error) for journalctl; tooltip shows truncated error string (~120 chars).
 
 ### 0.5.8
 - Panel `import "."` so Loader resolves CheckRow/sibling types; best-effort panel load error in tooltip.
