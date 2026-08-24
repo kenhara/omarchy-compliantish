@@ -1,8 +1,8 @@
 {
   "schemaVersion": 1,
-  "id": "harris.security-theater",
-  "name": "Security Theater",
-  "version": "0.5.3",
+  "id": "harris.compliantish",
+  "name": "Compliantish",
+  "version": "0.5.4",
   "author": "Harris Kenny",
   "license": "MIT",
   "description": "Local workstation checks for Omarchy — yes, the name is the joke. Disk encryption, screen lock, antivirus, password manager, automatic updates. Unofficial Vanta/Drata-inspired compliance desk; not affiliated. No vendor API.",
@@ -13,7 +13,7 @@
     "barWidget": "BarWidget.qml"
   },
   "keywords": [
-    "security theater",
+    "compliantish",
     "compliance",
     "soc2",
     "soc 2",
@@ -45,16 +45,17 @@
     "mdm",
     "workstation",
     "encryption",
-    "updates"
+    "updates",
+    "security theater"
   ],
   "barWidget": {
-    "displayName": "Security Theater",
+    "displayName": "Compliantish",
     "description": "Local workstation checks (the name is the joke): disk encryption, screen lock, antivirus, password manager, automatic updates. Unofficial; not affiliated with Drata or Vanta.",
     "category": "System",
     "allowMultiple": false,
     "defaultSection": "right",
     "aliases": [
-      "security theater",
+      "compliantish",
       "compliance",
       "compliance desk",
       "drata",
@@ -73,7 +74,8 @@
       "bitwarden",
       "automatic updates",
       "security checklist",
-      "security baseline"
+      "security baseline",
+      "security theater"
     ],
     "defaults": {
       "refreshIntervalSec": 900,

@@ -1,6 +1,6 @@
-# Security Theater 0.5.1 — audit fix map
+# Compliantish 0.5.1 — audit fix map
 
-False-PASS hardening and polish from the Security Theater audit. Product
+False-PASS hardening and polish from the Compliantish audit. Product
 principles unchanged: read-only / no-sudo / remediation = copy/open only;
 **Unknown ≠ fail**; unofficial Drata/Vanta disclaimer; theme tokens; pointer +
 hover on actionable controls.
@@ -16,7 +16,7 @@ hover on actionable controls.
 | **ST-07** | MED | Persist `enable*` into cache (`buildCacheObject`); rehydrate in `loadDiskText` / bootstrap so Checks menu survives reload when host settings aren’t writable. Still calls `mirrorSettingsEnable`. |
 | **ST-08** | MED | Cache write: 0.5.1 chained mkdir+setText; **0.5.2** uses `FileView.setText` only (mkpath, no mkdir race). |
 | **ST-09** | LOW | Bumped to **0.5.2**; DESIGN.md + docs/preview banner synced. |
-| **ST-10** | LOW | Scrubbed agent workspace paths and public “Quattro” / Space Jockey shipping-name noise from docs; neutralized BarWidget comment. |
+| **ST-10** | LOW | Scrubbed agent workspace paths and public “Quattro” / Rocketlauncher shipping-name noise from docs; neutralized BarWidget comment. |
 | **ST-11** | LOW | LICENSE: unquoted second `Software` (`in the Software without restriction`). |
 | **ST-12** | LOW | REPO.md kept as a short pointer. |
 | **ST-13** | LOW | Hover fill (`containsMouse` + `hoverEnabled`) on Panel / CheckRow actionable buttons. |

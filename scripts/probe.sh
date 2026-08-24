@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Security Theater — read-only workstation probes (no network, no sudo).
+# Compliantish — read-only workstation probes (no network, no sudo).
 # Usage: probe.sh [screenLockMaxSec]
 # Emits one JSON object on stdout.
 # Always emits all five agent checks (HD, SL, AV, PW, AU) — enable flags live in the QML store / Checks menu.

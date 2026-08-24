@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Security Theater — Preview</title>
+<title>Compliantish — Preview</title>
 <style>
   :root {
     --bg: #000; --fg: rgba(240,240,250,1);
@@ -122,15 +122,15 @@
 </style>
 </head>
 <body>
-  <div class="banner"><strong style="color:rgba(240,240,250,.85);margin-right:.4em">Preview</strong> Security Theater HTML mock — not the live QML widget · v0.5.3</div>
+  <div class="banner"><strong style="color:rgba(240,240,250,.85);margin-right:.4em">Preview</strong> Compliantish HTML mock — not the live QML widget · v0.5.4</div>
   <div class="bar">
     <div class="bar-brand">OMARCHY</div>
-    <div class="pill" id="barPill" title="Security Theater">
+    <div class="pill" id="barPill" title="Compliantish">
       <span class="dot" id="barDot">●</span><span id="barFrac">—</span>
     </div>
   </div>
   <div class="wrap">
-    <div class="hint">Omarchy · Security Theater</div>
+    <div class="hint">Omarchy · Compliantish</div>
     <div class="panel">
       <div class="head">
         <div>
@@ -280,7 +280,7 @@ function render() {
   else if (enabled.length) bits.push('local workstation checks');
   document.getElementById('sumSub').textContent = bits.join(' · ');
 
-  var tip = 'Security Theater — ' + (enabled.length ? (pass + '/' + enabled.length + ' pass') : 'no checks enabled');
+  var tip = 'Compliantish — ' + (enabled.length ? (pass + '/' + enabled.length + ' pass') : 'no checks enabled');
   if (failNames.length) tip += ' · fail: ' + failNames.join(', ');
   tip += ' · middle: refresh';
   document.getElementById('barPill').title = tip;

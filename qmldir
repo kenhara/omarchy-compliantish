@@ -1,4 +1,4 @@
-# Security Theater — local module types.
+# Compliantish — local module types.
 # Prefer instantiating ComplianceStore from BarWidget and injecting into Panel.
 ComplianceStore 1.0 ComplianceStore.qml
 CheckRow 1.0 CheckRow.qml

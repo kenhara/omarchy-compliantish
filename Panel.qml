@@ -3,10 +3,10 @@ import Quickshell
 import qs.Commons
 import qs.Ui
 
-// Nested details panel for Security Theater (loaded by BarWidget — not a separate kind).
+// Nested details panel for Compliantish (loaded by BarWidget — not a separate kind).
 Panel {
   id: root
-  moduleName: "harris.security-theater"
+  moduleName: "harris.compliantish"
   manageIpc: false
 
   property var anchorItem: null

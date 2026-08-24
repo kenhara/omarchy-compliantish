@@ -1,6 +1,6 @@
 # Changelog
 
-## 0.5.3
+## 0.5.4
 - Discoverability: expanded `keywords` + `barWidget.aliases` (compliance / Drata / Vanta / encryption / AV / password manager search terms); README Discoverability note. Category remains **System**.
 
 ## 0.5.2
@@ -18,7 +18,7 @@
 - Public MVP — GitHub + Checks menu + five probes + recurring refresh.
 
 ## 0.4.2
-- Renamed product to **Security Theater** (`harris.security-theater`); cache → `~/.cache/security-theater`.
+- Renamed product to **Compliantish** (`harris.compliantish`); cache → `~/.cache/compliantish`.
 
 ## 0.4.1
 - Default `screenLockMaxSec` **900** (15 minutes) to match Drata Test 61; Vanta allows ≤60m via the same knob.

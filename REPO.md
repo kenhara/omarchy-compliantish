@@ -1,5 +1,5 @@
-# Security Theater
+# Compliantish
 
-GitHub: https://github.com/kenhara/omarchy-security-theater
+GitHub: https://github.com/kenhara/omarchy-compliantish
 
 See [README.md](README.md).

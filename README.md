@@ -1,30 +1,30 @@
-# Security Theater
+# Compliantish
 
-![Security Theater](preview.png)
+![Compliantish](preview.png)
 
 Local workstation checks for Omarchy — **yes, the name is the joke.** Runs the
 **union of Vanta + Drata workstation agent checks**: exactly **five** read-only
 probes, a visible **Checks** menu, and a recurring local refresh. Native Omarchy
 `bar-widget` (not Electron). No Drata/Vanta API; unofficial.
 
-**ID:** `harris.security-theater`  
+**ID:** `harris.compliantish`  
 **Author:** Harris Kenny  
 **License:** MIT  
-**Version:** 0.5.3
+**Version:** 0.5.4
 
-### 0.5.3
+### 0.5.4
 - Discoverability: expanded `keywords` + `barWidget.aliases` (Drata/Vanta/SOC search terms); honest search note.
 
 Changelog: [CHANGELOG.md](CHANGELOG.md) · Audit fixes: [AUDIT-NOTES.md](AUDIT-NOTES.md)
 
 ## Repository
 
-**GitHub:** https://github.com/kenhara/omarchy-security-theater  
-Local folder: **`omarchy-security-theater`**.
+**GitHub:** https://github.com/kenhara/omarchy-compliantish  
+Local folder: **`omarchy-compliantish`**.
 
 ## Unofficial disclaimer
 
-**Security Theater is unofficial.** It is **not** affiliated with, endorsed by,
+**Compliantish is unofficial.** It is **not** affiliated with, endorsed by,
 or sponsored by Drata, Inc., Vanta, or any related entity. It mirrors common
 workstation control *themes* only (disk encryption, screen lock, antivirus,
 password manager, automatic updates). It does **not** sync to Drata or Vanta,
@@ -63,7 +63,7 @@ missing tag: `compliance`).
 Top-level `keywords` in `manifest.json` may help marketplace/search (Drata,
 Vanta, SOC 2, disk encryption, ClamAV, 1Password, etc.). `barWidget.aliases`
 are for discovery docs and human search — the bar loader may not index them.
-Display name stays **Security Theater** (owned joke; no vendor as title).
+Display name stays **Compliantish** (owned joke; no vendor as title).
 Workstation probes only — not a full SOC/HIPAA certification agent.
 
 ## Install
@@ -71,8 +71,8 @@ Workstation probes only — not a full SOC/HIPAA certification agent.
 ### From GitHub
 
 ```sh
-omarchy plugin add https://github.com/kenhara/omarchy-security-theater.git --enable
-omarchy bar move harris.security-theater --section right
+omarchy plugin add https://github.com/kenhara/omarchy-compliantish.git --enable
+omarchy bar move harris.compliantish --section right
 ```
 
 ### Local copy (this tree)
@@ -83,12 +83,12 @@ machine:
 ```sh
 # From a clone of this repo (repo root = plugin root)
 mkdir -p ~/.config/omarchy/plugins
-cp -a . ~/.config/omarchy/plugins/harris.security-theater
+cp -a . ~/.config/omarchy/plugins/harris.compliantish
 
-omarchy plugin validate ~/.config/omarchy/plugins/harris.security-theater
+omarchy plugin validate ~/.config/omarchy/plugins/harris.compliantish
 omarchy-shell shell rescanPlugins
 
-omarchy bar move harris.security-theater --section right
+omarchy bar move harris.compliantish --section right
 ```
 
 Hot reload applies on save under `~/.config/omarchy/plugins/`.
@@ -97,7 +97,7 @@ Hot reload applies on save under `~/.config/omarchy/plugins/`.
 
 ```sh
 mkdir -p ~/.config/omarchy/plugins
-ln -sfn /path/to/omarchy-security-theater ~/.config/omarchy/plugins/harris.security-theater
+ln -sfn /path/to/omarchy-compliantish ~/.config/omarchy/plugins/harris.compliantish
 omarchy-shell shell rescanPlugins
 ```
 
@@ -134,8 +134,8 @@ omarchy-shell shell rescanPlugins
 ### IPC
 
 ```sh
-omarchy-shell shell toggle harris.security-theater
-omarchy-shell shell hide harris.security-theater
+omarchy-shell shell toggle harris.compliantish
+omarchy-shell shell hide harris.compliantish
 ```
 
 Optional summon (best-effort): handlers accept `{"refresh":true}` /
@@ -159,24 +159,24 @@ do not rely on summon as a public API.
 ## Remove
 
 ```sh
-omarchy plugin remove harris.security-theater
+omarchy plugin remove harris.compliantish
 ```
 
 Optional cache cleanup:
 
 ```sh
-rm -rf ~/.cache/security-theater
+rm -rf ~/.cache/compliantish
 ```
 
 ## Network
 
 **None in v1.** All checks are local shell probes. Cache:
-`~/.cache/security-theater/last.json`.
+`~/.cache/compliantish/last.json`.
 
 ## Layout
 
 ```
-manifest.json          plugin manifest (id harris.security-theater)
+manifest.json          plugin manifest (id harris.compliantish)
 BarWidget.qml          bar entry + Loader → Panel
 Panel.qml              Checks menu + checklist + Tier A actions
 CheckRow.qml           one control row (● + full name)

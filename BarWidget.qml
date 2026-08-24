@@ -3,11 +3,11 @@ import Quickshell
 import qs.Commons
 import qs.Ui
 
-// Security Theater bar entry:
+// Compliantish bar entry:
 // BarWidget loads nested Panel.qml via Loader. kinds: ["bar-widget"] only.
 BarWidget {
   id: root
-  moduleName: "harris.security-theater"
+  moduleName: "harris.compliantish"
 
   readonly property bool opened: panelLoader.item
     ? panelLoader.item.opened === true
@@ -224,7 +224,7 @@ BarWidget {
     horizontalMargin: 8.5
     tooltipText: {
       var tot = complianceStore.totalCount
-      var tip = "Security Theater — " + (tot
+      var tip = "Compliantish — " + (tot
         ? (complianceStore.passCount + "/" + tot + " pass")
         : "no checks enabled")
       if (complianceStore.barTooltipDetail)

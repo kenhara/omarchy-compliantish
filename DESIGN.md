@@ -1,6 +1,6 @@
-# Security Theater — Omarchy plugin (Vanta ∪ Drata workstation checks)
+# Compliantish — Omarchy plugin (Vanta ∪ Drata workstation checks)
 
-**Status:** implemented v0.5.3 (community plugin; no Drata/Vanta API)  
+**Status:** implemented v0.5.4 (community plugin; no Drata/Vanta API)  
 **Coverage:** union of **Vanta Device Monitor (4)** + **Drata Agent (5)** = **exactly five** local lights  
 **Exemplar lessons:** Omarchy nested `bar-widget` + Panel pattern  
 
@@ -59,7 +59,7 @@
 
 **Linux caveats (Vanta):** Official VDM docs state Linux support is limited (Debian/Ubuntu family; **not Arch**). On many Linux builds, **HD encryption is the only reliably supported agent check**; screen lock / AV / password manager often need MDM or manual evidence. Do not treat firewall as a Vanta agent column either.
 
-**Decision:** Security Theater covers the **union: five checks**. Labels match common agent wording. Schema + panel **Checks** menu toggle each independently (all **on** by default in v0.4.0).
+**Decision:** Compliantish covers the **union: five checks**. Labels match common agent wording. Schema + panel **Checks** menu toggle each independently (all **on** by default in v0.4.0).
 
 ---
 
@@ -78,8 +78,8 @@
 | README Controls + IPC | `toggle` / `summon` / Refresh |
 | Dead-simple v1 | Five rows + Checks + Refresh + Copy summary — no MDM fantasy |
 
-**ID:** `harris.security-theater`  
-**Name:** Security Theater  
+**ID:** `harris.compliantish`  
+**Name:** Compliantish  
 **Category:** System  
 **Bar:** `● pass/total` (e.g. `2/5`) — pass count from **enabled** statuses; dot color by worst status  
 **Pitch:** “Vanta ∪ Drata workstation checks for Omarchy — local, read-only, Checks menu.”
@@ -174,7 +174,7 @@ Bar: worst of **enabled** → red if any fail, amber if any unknown and no fails
 
 ## 7. Version notes
 
-### 0.5.3
+### 0.5.4
 - Discoverability pass: expanded keywords/aliases; marketplace System + suggest `compliance`.
 
 ### 0.5.2
@@ -184,7 +184,7 @@ Bar: worst of **enabled** → red if any fail, amber if any unknown and no fails
 - Public MVP on GitHub
 
 ### 0.4.x
-- Panel **Checks** menu; all five `enable*` default on; recurring local probe; rename to Security Theater
+- Panel **Checks** menu; all five `enable*` default on; recurring local probe; rename to Compliantish
 
 ### Earlier
 - Pass-count fix, surface cards, ● status dots, probe JSON

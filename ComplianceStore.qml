@@ -2,7 +2,7 @@ import QtQuick
 import Quickshell
 import Quickshell.Io
 
-// Local probe runner + cache for Security Theater.
+// Local probe runner + cache for Compliantish.
 // Read-only: runs scripts/probe.sh, no network, no sudo.
 QtObject {
   id: store
@@ -19,7 +19,7 @@ QtObject {
   property bool enableAutoUpdates: true
   property bool panelOpen: false
 
-  readonly property string cacheDir: Quickshell.env("HOME") + "/.cache/security-theater"
+  readonly property string cacheDir: Quickshell.env("HOME") + "/.cache/compliantish"
   readonly property string cachePath: cacheDir + "/last.json"
   readonly property string pluginDir: String(Qt.resolvedUrl("."))
     .replace(/^file:\/\//, "")
@@ -279,7 +279,7 @@ QtObject {
       if (map[code] === day) continue
       map[code] = day
       var name = String(c.label || code || "check")
-      store.notifySend("Security Theater", name + " failed — " + (c.detail || "see panel"))
+      store.notifySend("Compliantish", name + " failed — " + (c.detail || "see panel"))
     }
     store.notifiedFails = map
   }
@@ -288,9 +288,9 @@ QtObject {
     try {
       notifyProc.command = [
         "notify-send",
-        "-a", "Security Theater",
+        "-a", "Compliantish",
         "-u", "normal",
-        String(title || "Security Theater"),
+        String(title || "Compliantish"),
         String(body || "")
       ]
       notifyProc.running = true
@@ -350,7 +350,7 @@ QtObject {
 
   function buildSummary() {
     var lines = []
-    lines.push("# Security Theater evidence summary")
+    lines.push("# Compliantish evidence summary")
     lines.push("")
     lines.push("Probed: " + (store.probedAt || "(unknown)"))
     lines.push("Host: " + ((store.meta && store.meta.hostname) || ""))

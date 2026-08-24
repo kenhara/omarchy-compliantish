@@ -1,12 +1,12 @@
-# Security Theater — Quattro pre-ship checklist (0.5.3)
+# Compliantish — Quattro pre-ship checklist (0.5.4)
 
-## PRE-SHIP note — discoverability (0.5.3)
+## PRE-SHIP note — discoverability (0.5.4)
 
 Patch bump for marketplace discoverability before UTM smoke: expanded `keywords` + `barWidget.aliases` (Drata/Vanta/SOC 2/encryption/ClamAV/1Password…); README Discoverability; suggest missing tag `compliance`. Category stays **System**. No QML/probe change.
 
 
-Same 17-item checklist as siblings (Fair Witness, Daily Bread, Yellow Pixels,
-Space Jockey). Applied on top of the 0.5.1 audit map (`AUDIT-NOTES.md`).
+Same 17-item checklist as siblings (Encyclopedic, Scriptural, Enricherino,
+Rocketlauncher). Applied on top of the 0.5.1 audit map (`AUDIT-NOTES.md`).
 
 ## Checklist
 
@@ -25,7 +25,7 @@ Space Jockey). Applied on top of the 0.5.1 audit map (`AUDIT-NOTES.md`).
 | 11 | Honest open/copy toasts (bool return) | **pass** — Copied/Opened only on real success |
 | 12 | `PlainText` if remote/untrusted text | **pass** — CheckRow label/detail `Text.PlainText` |
 | 13 | Hover; scroll if needed | **pass** — hover fills kept; Panel `Flickable` |
-| 14 | Version sync | **pass** — 0.5.3 across manifest / README / CHANGELOG / DESIGN / preview |
+| 14 | Version sync | **pass** — 0.5.4 across manifest / README / CHANGELOG / DESIGN / preview |
 | 15 | Integer schema min/max/step | **pass** — refreshIntervalSec + screenLockMaxSec |
 | 16 | No fake summon APIs | **pass** — handlers kept; README IPC honest (payload may drop) |
 | 17 | Controls L/R/M; pitch; no `curl\|sh` | **pass** — L toggle / M refresh / R close; Install via `omarchy plugin add` |
@@ -55,4 +55,4 @@ agent-workspace absolute paths
 
 - `bash -n scripts/probe.sh`
 - Plain LVM mapper name alone does not HD-pass
-- Versions all say **0.5.3**
+- Versions all say **0.5.4**
