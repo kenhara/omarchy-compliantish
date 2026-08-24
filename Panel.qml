@@ -2,7 +2,6 @@ import QtQuick
 import Quickshell
 import qs.Commons
 import qs.Ui
-import "."
 
 // Nested details panel for Compliantish (loaded by BarWidget — not a separate kind).
 Panel {
@@ -205,7 +204,7 @@ Panel {
           anchors.right: parent.right
           anchors.top: parent.top
           anchors.margins: Style.space(12)
-          spacing: Style.space(8)
+          spacing: Style.space(6)
 
           Text {
             width: parent.width
@@ -232,7 +231,7 @@ Panel {
                   text: modelData.label || modelData.code || "?"
                   color: root.contentForeground
                   font.family: root.contentFontFamily
-                  font.pixelSize: Style.font.subtitle
+                  font.pixelSize: Style.font.body
                   font.bold: true
                   elide: Text.ElideRight
                 }

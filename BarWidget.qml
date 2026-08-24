@@ -233,9 +233,9 @@ BarWidget {
     id: button
     anchors.fill: parent
     bar: root.bar
-    // ● N/M — no shields, no letter codes (dot tint lives in panel rows)
-    text: complianceStore.barLabel || "● —"
-    horizontalMargin: 8.5
+    // Glyph-only chip (🔒/🔓); fraction stays in tooltip
+    text: complianceStore.barLabel || "🔒"
+    horizontalMargin: 6
     tooltipText: {
       var tot = complianceStore.totalCount
       var tip = "Compliantish — " + (tot

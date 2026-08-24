@@ -99,13 +99,9 @@ Item {
     if (store.unknownCount > 0 || store.totalCount === 0) return "unknown"
     return "pass"
   }
-  // Bar glyph: ● (U+25CF) — no shields, no letter codes
-  readonly property string barGlyph: "●"
-  readonly property string barLabel: {
-    var tot = store.totalCount
-    if (!tot) return store.barGlyph + " —"
-    return store.barGlyph + " " + store.passCount + "/" + tot
-  }
+  // Bar glyph: lock when all enabled checks pass; unlocked otherwise (glyph only on bar)
+  readonly property string barGlyph: store.worstStatus === "pass" ? "🔒" : "🔓"
+  readonly property string barLabel: store.barGlyph
   // Visible UI lists use full names; JSON `code` keys stay internal.
   readonly property string failListText: {
     var fails = []

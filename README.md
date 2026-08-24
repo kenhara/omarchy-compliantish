@@ -10,7 +10,12 @@ probes, a visible **Checks** menu, and a recurring local refresh. Native Omarchy
 **ID:** `kenhara.compliantish`  
 **Author:** Harris Kenny  
 **License:** MIT  
-**Version:** 0.5.9
+**Version:** 0.5.10
+
+### 0.5.10
+- Remove Panel `import "."` (was shadowing qs.Ui Panel under Loader → dead bar clicks); CheckRow still via qmldir/module context.
+- Bar chip: 🔒 when all enabled checks pass, else 🔓 — glyph only (fraction stays in tooltip).
+- Tighter bar chip (`horizontalMargin` 6); denser Checks menu (body labels, spacing 6).
 
 ### 0.5.9
 - Panel load failure: console.warn(moduleName + error) for journalctl; tooltip shows truncated error string (~120 chars).
