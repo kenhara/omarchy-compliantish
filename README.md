@@ -77,7 +77,8 @@ included — it is not a first-class Drata agent / Vanta Device Monitor column):
 | AU | Automatic updates | **Drata only** (not a first-class Vanta Device Monitor column) | **on** | Genuinely scheduled update timers (`is-active` or `enabled`/`enabled-runtime`) — else Unknown |
 
 Keys (`HD`/`SL`/…) are **internal JSON** only — the UI shows full names and a
-colored `●` status dot (pass = accent, fail = urgent, unknown = muted amber).
+tintable FA/Nerd glyph per check (hdd / lock / shield / key / sync), tinted by
+pass / fail / unknown.
 
 **Unknown ≠ fail.** Missing tools or inconclusive signals stay amber, never silent red.
 
