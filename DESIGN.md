@@ -78,7 +78,7 @@
 | README Controls + IPC | `toggle` / `summon` / Refresh |
 | Dead-simple v1 | Five rows + Checks + Refresh + Copy summary — no MDM fantasy |
 
-**ID:** `harris.compliantish`  
+**ID:** `kenhara.compliantish`  
 **Name:** Compliantish  
 **Category:** System  
 **Bar:** `● pass/total` (e.g. `2/5`) — pass count from **enabled** statuses; dot color by worst status  

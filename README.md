@@ -7,10 +7,13 @@ Local workstation checks for Omarchy — **yes, the name is the joke.** Runs the
 probes, a visible **Checks** menu, and a recurring local refresh. Native Omarchy
 `bar-widget` (not Electron). No Drata/Vanta API; unofficial.
 
-**ID:** `harris.compliantish`  
+**ID:** `kenhara.compliantish`  
 **Author:** Harris Kenny  
 **License:** MIT  
-**Version:** 0.5.4
+**Version:** 0.5.5
+
+### 0.5.5
+- Renamed plugin id `harris.compliantish` → `kenhara.compliantish` (install path `~/.config/omarchy/plugins/kenhara.compliantish`). Display name unchanged.
 
 ### 0.5.4
 - Discoverability: expanded `keywords` + `barWidget.aliases` (Drata/Vanta/SOC search terms); honest search note.
@@ -72,7 +75,7 @@ Workstation probes only — not a full SOC/HIPAA certification agent.
 
 ```sh
 omarchy plugin add https://github.com/kenhara/omarchy-compliantish.git --enable
-omarchy bar move harris.compliantish --section right
+omarchy bar move kenhara.compliantish --section right
 ```
 
 ### Local copy (this tree)
@@ -83,12 +86,12 @@ machine:
 ```sh
 # From a clone of this repo (repo root = plugin root)
 mkdir -p ~/.config/omarchy/plugins
-cp -a . ~/.config/omarchy/plugins/harris.compliantish
+cp -a . ~/.config/omarchy/plugins/kenhara.compliantish
 
-omarchy plugin validate ~/.config/omarchy/plugins/harris.compliantish
+omarchy plugin validate ~/.config/omarchy/plugins/kenhara.compliantish
 omarchy-shell shell rescanPlugins
 
-omarchy bar move harris.compliantish --section right
+omarchy bar move kenhara.compliantish --section right
 ```
 
 Hot reload applies on save under `~/.config/omarchy/plugins/`.
@@ -97,7 +100,7 @@ Hot reload applies on save under `~/.config/omarchy/plugins/`.
 
 ```sh
 mkdir -p ~/.config/omarchy/plugins
-ln -sfn /path/to/omarchy-compliantish ~/.config/omarchy/plugins/harris.compliantish
+ln -sfn /path/to/omarchy-compliantish ~/.config/omarchy/plugins/kenhara.compliantish
 omarchy-shell shell rescanPlugins
 ```
 
@@ -134,8 +137,8 @@ omarchy-shell shell rescanPlugins
 ### IPC
 
 ```sh
-omarchy-shell shell toggle harris.compliantish
-omarchy-shell shell hide harris.compliantish
+omarchy-shell shell toggle kenhara.compliantish
+omarchy-shell shell hide kenhara.compliantish
 ```
 
 Optional summon (best-effort): handlers accept `{"refresh":true}` /
@@ -159,7 +162,7 @@ do not rely on summon as a public API.
 ## Remove
 
 ```sh
-omarchy plugin remove harris.compliantish
+omarchy plugin remove kenhara.compliantish
 ```
 
 Optional cache cleanup:
@@ -176,7 +179,7 @@ rm -rf ~/.cache/compliantish
 ## Layout
 
 ```
-manifest.json          plugin manifest (id harris.compliantish)
+manifest.json          plugin manifest (id kenhara.compliantish)
 BarWidget.qml          bar entry + Loader → Panel
 Panel.qml              Checks menu + checklist + Tier A actions
 CheckRow.qml           one control row (● + full name)

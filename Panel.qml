@@ -6,7 +6,7 @@ import qs.Ui
 // Nested details panel for Compliantish (loaded by BarWidget — not a separate kind).
 Panel {
   id: root
-  moduleName: "harris.compliantish"
+  moduleName: "kenhara.compliantish"
   manageIpc: false
 
   property var anchorItem: null

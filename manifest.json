@@ -1,11 +1,11 @@
 {
   "schemaVersion": 1,
-  "id": "harris.compliantish",
+  "id": "kenhara.compliantish",
   "name": "Compliantish",
-  "version": "0.5.4",
+  "version": "0.5.5",
   "author": "Harris Kenny",
   "license": "MIT",
-  "description": "Local workstation checks for Omarchy — yes, the name is the joke. Disk encryption, screen lock, antivirus, password manager, automatic updates. Unofficial Vanta/Drata-inspired compliance desk; not affiliated. No vendor API.",
+  "description": "Local workstation checks for Omarchy \u2014 yes, the name is the joke. Disk encryption, screen lock, antivirus, password manager, automatic updates. Unofficial Vanta/Drata-inspired compliance desk; not affiliated. No vendor API.",
   "kinds": [
     "bar-widget"
   ],
@@ -102,7 +102,7 @@
         "key": "screenLockMaxSec",
         "type": "integer",
         "label": "Screen lock max idle (seconds)",
-        "description": "Screen lock passes when idle→lock timeout is configured and ≤ this value. Default 900 = 15 minutes (Drata Test 61). Vanta allows up to 60 minutes — raise this knob if you only need Vanta parity.",
+        "description": "Screen lock passes when idle\u2192lock timeout is configured and \u2264 this value. Default 900 = 15 minutes (Drata Test 61). Vanta allows up to 60 minutes \u2014 raise this knob if you only need Vanta parity.",
         "min": 60,
         "max": 86400,
         "step": 60,
@@ -133,7 +133,7 @@
         "key": "enableAntivirus",
         "type": "boolean",
         "label": "Check antivirus",
-        "description": "Include antivirus in the panel and bar pass count. Primary toggle: panel Checks menu (widget settings still work). On by default — turn off in Checks if Omarchy has no AV.",
+        "description": "Include antivirus in the panel and bar pass count. Primary toggle: panel Checks menu (widget settings still work). On by default \u2014 turn off in Checks if Omarchy has no AV.",
         "defaultValue": true
       },
       {
@@ -147,7 +147,7 @@
         "key": "enableAutoUpdates",
         "type": "boolean",
         "label": "Check automatic updates",
-        "description": "Include automatic updates in the panel and bar pass count (Drata agent light; not a first-class Vanta Device Monitor column). Primary toggle: panel Checks menu (widget settings still work). On by default — turn off in Checks if policy is manual.",
+        "description": "Include automatic updates in the panel and bar pass count (Drata agent light; not a first-class Vanta Device Monitor column). Primary toggle: panel Checks menu (widget settings still work). On by default \u2014 turn off in Checks if policy is manual.",
         "defaultValue": true
       }
     ]
