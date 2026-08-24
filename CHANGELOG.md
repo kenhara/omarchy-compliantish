@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.15
+
+- Checklist rows: replace colored `●` with tintable per-check FA/Nerd glyphs (HD ``, SL ``, AV ``, PW ``, AU ``; fallback ``), status color tint unchanged (pass=accent / fail=urgent / unknown=amber). Body-sized icons. PASS/FAIL badges, Copy fix, and bar chip unchanged.
+
 ## 0.5.14
 
 - Bar chip: replace color emoji 🔒 with tintable Font Awesome lock `\uf023` (same family as omarchy.system-update’s `\uf021`) so WidgetButton `active` → `bar.urgent` is visible. Caption fontSize. Unknown still not urgent. Opt-in `notifyOnFail` (notify-send) remains separate and off by default.

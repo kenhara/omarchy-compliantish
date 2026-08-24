@@ -525,6 +525,16 @@ Panel {
     readonly property bool showActions: status === "fail" || status === "unknown"
     readonly property bool isScreenLock: code === "SL"
 
+    // Per-check FA/Nerd glyph (tintable via Text.color, like bar lock \uf023)
+    readonly property string statusGlyph: {
+      if (code === "HD") return "\uf0a0"   // hdd
+      if (code === "SL") return "\uf023"   // lock
+      if (code === "AV") return "\uf132"   // shield
+      if (code === "PW") return "\uf084"   // key
+      if (code === "AU") return "\uf021"   // sync/refresh
+      return "\uf128"                     // question
+    }
+
     readonly property color statusColor: {
       if (status === "pass") return Color.accent
       if (status === "fail") return Color.urgent
@@ -564,9 +574,10 @@ Panel {
           spacing: Style.space(10)
 
           Text {
-            text: "●"
+            text: rowRoot.statusGlyph
             color: rowRoot.statusColor
-            font.pixelSize: Style.font.bodySmall
+            font.family: rowRoot.fontFamily
+            font.pixelSize: Style.font.body
             anchors.verticalCenter: parent.verticalCenter
           }
 

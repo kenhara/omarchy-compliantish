@@ -10,7 +10,10 @@ probes, a visible **Checks** menu, and a recurring local refresh. Native Omarchy
 **ID:** `kenhara.compliantish`  
 **Author:** Harris Kenny  
 **License:** MIT  
-**Version:** 0.5.14
+**Version:** 0.5.15
+
+### 0.5.15
+- Checklist: tintable FA/Nerd glyphs per check (HD hdd / SL lock / AV shield / PW key / AU sync) replace `●`; status color tint kept. Body fontSize. Badges / Copy fix / bar chip unchanged.
 
 ### 0.5.14
 - Bar urgent signal: FA lock `\uf023` (tintable) replaces color emoji 🔒 — WidgetButton `active` tints the chip with `bar.urgent` when any enabled check fails (not a toast). Unknown stays normal. Caption-sized glyph. Opt-in `notifyOnFail` desktop notify-send stays off by default.

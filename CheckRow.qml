@@ -22,6 +22,16 @@ Item {
   readonly property bool showActions: status === "fail" || status === "unknown"
   readonly property bool isScreenLock: code === "SL"
 
+  // Per-check FA/Nerd glyph (tintable via Text.color, like bar lock \uf023)
+  readonly property string statusGlyph: {
+    if (code === "HD") return "\uf0a0"   // hdd
+    if (code === "SL") return "\uf023"   // lock
+    if (code === "AV") return "\uf132"   // shield
+    if (code === "PW") return "\uf084"   // key
+    if (code === "AU") return "\uf021"   // sync/refresh
+    return "\uf128"                     // question
+  }
+
   // pass=accent, fail=urgent, unknown=muted amber
   readonly property color statusColor: {
     if (status === "pass") return Color.accent
@@ -61,11 +71,12 @@ Item {
         width: parent.width
         spacing: Style.space(10)
 
-        // Status dot — ● (U+25CF), tinted by status
+        // Per-check FA glyph, tinted by status (pass=accent / fail=urgent / unknown=amber)
         Text {
-          text: "●"
+          text: root.statusGlyph
           color: root.statusColor
-          font.pixelSize: Style.font.bodySmall
+          font.family: root.fontFamily
+          font.pixelSize: Style.font.body
           anchors.verticalCenter: parent.verticalCenter
         }
 
