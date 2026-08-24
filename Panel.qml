@@ -107,7 +107,7 @@ Panel {
             text: "COMPLIANTISH"
             color: root.contentForeground
             font.family: root.contentFontFamily
-            font.pixelSize: Style.font.title
+            font.pixelSize: Style.font.body
             font.bold: true
             font.letterSpacing: 2.4
           }
@@ -328,7 +328,7 @@ Panel {
           Text {
             text: "●"
             color: root.worstColor()
-            font.pixelSize: Style.font.title
+            font.pixelSize: Style.font.body
             anchors.verticalCenter: parent.verticalCenter
           }
 
@@ -347,7 +347,7 @@ Panel {
               }
               color: root.contentForeground
               font.family: root.contentFontFamily
-              font.pixelSize: Style.font.subtitle
+              font.pixelSize: Style.font.body
               font.bold: true
             }
 

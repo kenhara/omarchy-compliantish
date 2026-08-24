@@ -10,7 +10,10 @@ probes, a visible **Checks** menu, and a recurring local refresh. Native Omarchy
 **ID:** `kenhara.compliantish`  
 **Author:** Harris Kenny  
 **License:** MIT  
-**Version:** 0.5.10
+**Version:** 0.5.11
+
+### 0.5.11
+- F1: replace Style.font.title/subtitle with Style.font.body (oracle rocketlauncher tokens only) so panels load on VPS/smoke Omarchy.
 
 ### 0.5.10
 - Remove Panel `import "."` (was shadowing qs.Ui Panel under Loader → dead bar clicks); CheckRow still via qmldir/module context.

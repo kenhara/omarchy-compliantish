@@ -78,7 +78,7 @@ Item {
             text: root.label
             color: root.contentForeground
             font.family: root.fontFamily
-            font.pixelSize: Style.font.subtitle
+            font.pixelSize: Style.font.body
             font.bold: true
             elide: Text.ElideRight
           }

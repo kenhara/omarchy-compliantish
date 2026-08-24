@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.11
+
+- F1: replace Style.font.title/subtitle with Style.font.body (oracle rocketlauncher tokens only) so panels load on VPS/smoke Omarchy.
+
 ## 0.5.5
 
 - Renamed plugin id `harris.compliantish` → `kenhara.compliantish`.
