@@ -1,5 +1,9 @@
 # Changelog
 
+## 0.5.18
+
+- Marketplace preview.png is the live Omarchy smoke screenshot.
+
 ## 0.5.17
 
 - Header: FA lock glyph (`\uf023`) left of COMPLIANTISH; Checks + Refresh on a right-aligned toolbar row so title + subheader are full-width.

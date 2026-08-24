@@ -10,7 +10,10 @@ probes, a visible **Checks** menu, and a recurring local refresh. Native Omarchy
 **ID:** `kenhara.compliantish`  
 **Author:** Harris Kenny  
 **License:** MIT  
-**Version:** 0.5.17
+**Version:** 0.5.18
+
+### 0.5.18
+- Marketplace preview.png is the live Omarchy smoke screenshot.
 
 ### 0.5.17
 - Header: FA lock glyph (`\uf023`) left of COMPLIANTISH; Checks + Refresh moved off the title row (full-width title plane).
