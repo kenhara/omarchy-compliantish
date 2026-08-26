@@ -10,7 +10,10 @@ probes, a visible **Checks** menu, and a recurring local refresh. Native Omarchy
 **ID:** `kenhara.compliantish`  
 **Author:** Harris Kenny  
 **License:** MIT  
-**Version:** 0.5.20
+**Version:** 0.5.21
+
+### 0.5.21
+- Exclusive cache write (no bash `printf >`); `openConfig` absolute local paths only; `notify-send --`; neutralize probe text + `Text.PlainText`; PATH `/usr/bin:/bin`; cache read fail-closed + `O_CLOEXEC`.
 
 ### 0.5.20
 - Cache read rejects symlink/FIFO (O_NOFOLLOW|O_NONBLOCK + regular-file check).
@@ -225,7 +228,7 @@ CheckRow.qml           reference row UI (Panel inlines CheckRowDelegate)
 ComplianceStore.qml    Process → scripts/probe.sh + cache + enable filters + Timer
 qmldir
 scripts/probe.sh       JSON on stdout (always five checks)
-scripts/load-cache.py  bounded cache read (reject symlink/FIFO)
+scripts/load-cache.py  bounded cache read/write (reject symlink/FIFO; exclusive replace)
 LICENSE                MIT
 README.md
 CHANGELOG.md
@@ -240,7 +243,11 @@ docs/preview/          HTML mock
 
 ## Security baseline
 
-- Read-only probes; remediation is user-triggered copy/open only.
+- Read-only probes; remediation is user-triggered copy/open only (`fixCommand` is clipboard-only).
+- Cache write is exclusive tmp + `os.replace`; cache read refuses symlink/FIFO.
+- `openConfig` refuses URLs and relative paths; `xdg-open --` on absolute local paths only.
+- Probe/error/meta/toast/detail/label `Text` uses `Text.PlainText`; strings neutralized at ingest.
+- Helper and probe `PATH=/usr/bin:/bin`.
 - No Drata/Vanta credentials, no OSQuery dependency, no auto package install.
 - MIT at repo root.
 

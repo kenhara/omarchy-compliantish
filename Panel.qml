@@ -140,6 +140,7 @@ Panel {
                 if (liveStore.lastError) return liveStore.lastError
                 return "device checks · refreshed " + (liveStore.lastUpdatedText || "—")
               }
+              textFormat: Text.PlainText
               color: root.contentForeground
               opacity: 0.45
               font.family: root.contentFontFamily
@@ -258,6 +259,7 @@ Panel {
                     Text {
                       width: parent.width
                       text: modelData.label || modelData.code || "?"
+                      textFormat: Text.PlainText
                       color: root.contentForeground
                       font.family: root.contentFontFamily
                       font.pixelSize: Style.font.body
@@ -374,6 +376,7 @@ Panel {
                     if (!tot) return "no checks enabled"
                     return liveStore.passCount + " of " + tot + " pass"
                   }
+                  textFormat: Text.PlainText
                   color: root.contentForeground
                   font.family: root.contentFontFamily
                   font.pixelSize: Style.font.body
@@ -394,6 +397,7 @@ Panel {
                       bits.push("local workstation checks")
                     return bits.join(" · ")
                   }
+                  textFormat: Text.PlainText
                   color: root.contentForeground
                   opacity: 0.45
                   font.family: root.contentFontFamily
@@ -477,6 +481,7 @@ Panel {
             Text {
               visible: !!(liveStore && liveStore.toastText)
               text: liveStore ? liveStore.toastText : ""
+              textFormat: Text.PlainText
               color: Color.accent
               font.family: root.contentFontFamily
               font.pixelSize: Style.font.bodySmall
@@ -497,6 +502,7 @@ Panel {
                 var m = liveStore.meta
                 return (m.hostname || "") + " · " + (m.osPretty || "") + " · " + (m.kernel || "")
               }
+              textFormat: Text.PlainText
               color: root.contentForeground
               opacity: 0.35
               font.family: root.contentFontFamily
@@ -603,6 +609,7 @@ Panel {
             Text {
               width: parent.width
               text: rowRoot.label
+              textFormat: Text.PlainText
               color: rowRoot.contentForeground
               font.family: rowRoot.fontFamily
               font.pixelSize: Style.font.body
@@ -613,6 +620,7 @@ Panel {
             Text {
               width: parent.width
               text: rowRoot.detail
+              textFormat: Text.PlainText
               color: rowRoot.contentForeground
               opacity: 0.45
               font.family: rowRoot.fontFamily
@@ -633,6 +641,7 @@ Panel {
               id: statusLabel
               anchors.centerIn: parent
               text: rowRoot.status.toUpperCase()
+              textFormat: Text.PlainText
               color: rowRoot.statusColor
               font.family: rowRoot.fontFamily
               font.pixelSize: Style.font.caption

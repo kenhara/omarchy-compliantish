@@ -1,5 +1,14 @@
 # Changelog
 
+## 0.5.21
+
+- Exclusive cache write: `load-cache.py --write` mkdir 0700, `O_WRONLY|O_CREAT|O_EXCL|O_NOFOLLOW` tmp, fsync, `os.replace` onto `last.json` (no bash `printf >`).
+- `openConfig` allows only absolute local paths (`/`, no `://`, no `\\`, no leading `-`); `xdg-open -- path`. Refuse + toast otherwise.
+- `notify-send` gets `--` before title/body; strip leading `-`.
+- Neutralize probe strings at ingest (clamp, strip tags and markdown images, enum status/code); bound `checks.length`; drop oversize records. `Text.PlainText` on probe/error/meta/toast/detail/label bindings.
+- Cache read fail-closed if `O_NOFOLLOW`/`O_NONBLOCK` missing; add `O_CLOEXEC`. Probe and helper `PATH=/usr/bin:/bin`.
+
+
 ## 0.5.20
 
 - Harden cache read against symlink/FIFO trust path: `scripts/load-cache.py` opens `O_RDONLY|O_NOFOLLOW|O_NONBLOCK`, requires a regular file, and reads at most cap+1 bytes. Missing / symlink / FIFO / oversize exit 1 (QML re-probes). Valid regular file emits raw bytes and exits 0.

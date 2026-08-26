@@ -40,8 +40,16 @@ Item {
   readonly property int maxProbeBytes: 65536
   property bool probeOverflow: false
   readonly property int maxCacheBytes: 262144
+  readonly property int maxFieldChars: 512
+  readonly property int maxPathChars: 4096
+  readonly property int maxChecks: 8
   property string cacheBuf: ""
   property bool cacheOverflow: false
+  readonly property var helperEnv: ({
+    "PATH": "/usr/bin:/bin",
+    "PYTHONDONTWRITEBYTECODE": "1"
+  })
+  readonly property var processPathEnv: ({ "PATH": "/usr/bin:/bin" })
 
   function isCheckEnabled(code) {
     var c = String(code || "")
@@ -239,9 +247,148 @@ Item {
     ]
   }
 
+  function clampStr(s, cap) {
+    var t = String(s == null ? "" : s)
+    cap = cap || store.maxFieldChars
+    if (cap > 0 && t.length > cap)
+      t = t.substring(0, cap)
+    return t
+  }
+
+  function neutralizeUntrusted(s, cap) {
+    var t = String(s == null ? "" : s)
+    t = t.replace(/<[^>]*>/g, "")
+    t = t.replace(/!\[[^\]]*\]\([^)]*\)/g, "")
+    t = t.replace(/[<>]/g, "")
+    t = t.replace(/[\x00-\x1F\x7F]/g, " ")
+    return store.clampStr(t, cap || store.maxFieldChars)
+  }
+
+  function enumStatus(s) {
+    var st = String(s || "").toLowerCase()
+    if (st === "pass" || st === "fail" || st === "unknown")
+      return st
+    return "unknown"
+  }
+
+  function enumCode(s) {
+    var c = String(s || "").toUpperCase()
+    if (c === "HD" || c === "SL" || c === "AV" || c === "PW" || c === "AU")
+      return c
+    return ""
+  }
+
+  function fieldOversize(v, cap) {
+    return String(v == null ? "" : v).length > cap
+  }
+
+  function sanitizeCheck(raw) {
+    if (!raw || typeof raw !== "object")
+      return null
+    if (store.fieldOversize(raw.code, 8))
+      return null
+    if (store.fieldOversize(raw.status, 16))
+      return null
+    if (store.fieldOversize(raw.label, store.maxFieldChars))
+      return null
+    if (store.fieldOversize(raw.detail, store.maxFieldChars))
+      return null
+    if (store.fieldOversize(raw.fixCommand, store.maxFieldChars))
+      return null
+    if (store.fieldOversize(raw.configPath, store.maxPathChars))
+      return null
+    var code = store.enumCode(store.clampStr(raw.code, 8))
+    if (!code)
+      return null
+    var status = store.enumStatus(store.clampStr(raw.status, 16))
+    var label = store.neutralizeUntrusted(raw.label, store.maxFieldChars)
+    var detail = store.neutralizeUntrusted(raw.detail, store.maxFieldChars)
+    var fix = store.neutralizeUntrusted(raw.fixCommand, store.maxFieldChars)
+    var config = store.clampStr(raw.configPath, store.maxPathChars)
+    if (config.indexOf("://") !== -1 || config.indexOf("\\") !== -1)
+      config = ""
+    return {
+      code: code,
+      label: label || code,
+      status: status,
+      detail: detail,
+      fixCommand: fix,
+      configPath: config
+    }
+  }
+
+  function sanitizeChecks(list) {
+    var out = []
+    if (!list || !list.length)
+      return out
+    var seen = ({})
+    var n = Math.min(list.length, store.maxChecks)
+    for (var i = 0; i < n; i++) {
+      var sc = store.sanitizeCheck(list[i])
+      if (!sc)
+        continue
+      if (seen[sc.code])
+        continue
+      seen[sc.code] = true
+      out.push(sc)
+    }
+    return out
+  }
+
+  function sanitizeMeta(meta) {
+    var m = meta && typeof meta === "object" ? meta : ({})
+    return {
+      hostname: store.neutralizeUntrusted(m.hostname, store.maxFieldChars),
+      osPretty: store.neutralizeUntrusted(m.osPretty, store.maxFieldChars),
+      kernel: store.neutralizeUntrusted(m.kernel, store.maxFieldChars),
+      machineId: store.neutralizeUntrusted(m.machineId, store.maxFieldChars)
+    }
+  }
+
+  function sanitizeNotifiedFails(map) {
+    var out = ({})
+    if (!map || typeof map !== "object")
+      return out
+    var codes = { HD: 1, SL: 1, AV: 1, PW: 1, AU: 1 }
+    for (var k in map) {
+      if (!Object.prototype.hasOwnProperty.call(map, k))
+        continue
+      var code = store.enumCode(k)
+      if (!code || !codes[code])
+        continue
+      var day = String(map[k] || "")
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(day))
+        continue
+      out[code] = day
+    }
+    return out
+  }
+
+  function isSafeConfigPath(path) {
+    var p = String(path || "")
+    if (!p.length)
+      return false
+    if (p.charAt(0) !== "/")
+      return false
+    if (p.indexOf("://") !== -1)
+      return false
+    if (p.indexOf("\\") !== -1)
+      return false
+    if (p.charAt(0) === "-")
+      return false
+    return true
+  }
+
+  function stripLeadingDash(s) {
+    var t = String(s || "")
+    while (t.length && t.charAt(0) === "-")
+      t = t.substring(1)
+    return t
+  }
+
   function applyPayload(obj, source) {
     if (!obj || typeof obj !== "object") return false
-    var list = obj.checks
+    var list = store.sanitizeChecks(obj.checks)
     if (!list || !list.length) return false
     var prev = store.checks || []
     var prevMap = ({})
@@ -249,8 +396,8 @@ Item {
       prevMap[String(prev[i].code || "")] = String(prev[i].status || "").toLowerCase()
 
     store.checks = list
-    store.meta = obj.meta || ({})
-    store.probedAt = obj.probedAt || ""
+    store.meta = store.sanitizeMeta(obj.meta)
+    store.probedAt = store.clampStr(obj.probedAt || "", 64)
     store.dataSource = source || "probe"
     store.lastError = ""
 
@@ -288,19 +435,25 @@ Item {
 
   function notifySend(title, body) {
     try {
+      var t = store.stripLeadingDash(title || "Compliantish")
+      var b = store.stripLeadingDash(body || "")
+      if (!t.length)
+        t = "Compliantish"
       notifyProc.command = [
         "notify-send",
         "-a", "Compliantish",
         "-u", "normal",
-        String(title || "Compliantish"),
-        String(body || "")
+        "--",
+        t,
+        b
       ]
+      notifyProc.environment = store.processPathEnv
       notifyProc.running = true
     } catch (e) {}
   }
 
   function showToast(msg) {
-    store.toastText = String(msg || "")
+    store.toastText = store.neutralizeUntrusted(String(msg || ""), store.maxFieldChars)
     toastClear.restart()
   }
 
@@ -319,6 +472,7 @@ Item {
     } catch (e) {}
     // Shell fallback: wl-copy / xclip / xsel; bash -c (not -lc).
     // Toast only on copyProc success (onExited) — never claim Copied early.
+    copyProc.environment = store.processPathEnv
     copyProc.command = [
       "bash", "-c",
       't="$1"; if command -v wl-copy >/dev/null 2>&1; then printf "%s" "$t" | wl-copy; elif command -v xclip >/dev/null 2>&1; then printf "%s" "$t" | xclip -selection clipboard; elif command -v xsel >/dev/null 2>&1; then printf "%s" "$t" | xsel --clipboard --input; else exit 127; fi',
@@ -345,7 +499,12 @@ Item {
       store.showToast("No config path")
       return false
     }
-    openUrlProc.command = ["xdg-open", path]
+    if (!store.isSafeConfigPath(path)) {
+      store.showToast("Open refused")
+      return false
+    }
+    openUrlProc.command = ["xdg-open", "--", path]
+    openUrlProc.environment = store.processPathEnv
     openUrlProc.running = true
     return true
   }
@@ -386,11 +545,18 @@ Item {
 
   function persistToDisk(obj) {
     var body = JSON.stringify(obj || buildCacheObject(), null, 2) + "\n"
+    if (body.length > store.maxCacheBytes) {
+      store.showToast("Cache too large")
+      return
+    }
     cacheWriteProc.command = [
-      "bash", "-c",
-      'dir=$(dirname "$1"); mkdir -p "$dir" && printf "%s" "$2" > "$1"',
-      "st-write", store.cachePath, body
+      "python3", "-B", store.loadCachePath,
+      "--write",
+      "--file", store.cachePath,
+      "--cap", String(store.maxCacheBytes),
+      "--data", body
     ]
+    cacheWriteProc.environment = store.helperEnv
     cacheWriteProc.running = true
   }
 
@@ -418,6 +584,7 @@ Item {
     store.probeBuf = ""
     store.probeOverflow = false
     probeProc.command = ["bash", store.probePath, String(store.screenLockMaxSec)]
+    probeProc.environment = store.processPathEnv
     probeProc.running = true
   }
 
@@ -431,7 +598,7 @@ Item {
     var raw = store.probeBuf || ""
     store.probeBuf = ""
     if (!raw.length) {
-      store.lastError = "probe produced no output (exit " + exitCode + ")"
+      store.lastError = store.neutralizeUntrusted("probe produced no output (exit " + exitCode + ")", store.maxFieldChars)
       return
     }
     try {
@@ -451,7 +618,7 @@ Item {
     try {
       var obj = JSON.parse(text || "{}")
       if (obj.notifiedFails)
-        store.notifiedFails = obj.notifiedFails
+        store.notifiedFails = store.sanitizeNotifiedFails(obj.notifiedFails)
       // Rehydrate Checks-menu toggles when host settings are not writable
       if (obj.enableDiskEncryption !== undefined)
         store.enableDiskEncryption = !!obj.enableDiskEncryption
@@ -530,7 +697,7 @@ Item {
     running: false
     // Trust-path cache read (reject symlink/FIFO); not a raw head(1) byte cap.
     command: ["python3", "-B", store.loadCachePath, "--file", store.cachePath, "--cap", String(store.maxCacheBytes)]
-    environment: ({ "PYTHONDONTWRITEBYTECODE": "1" })
+    environment: store.helperEnv
     stdout: SplitParser {
       splitMarker: ""
       onRead: function(chunk) {
@@ -559,11 +726,13 @@ Item {
   Process {
     id: cacheWriteProc
     running: false
+    environment: store.helperEnv
   }
 
   Process {
     id: openUrlProc
     running: false
+    environment: store.processPathEnv
     onExited: function(exitCode, exitStatus) {
       if (exitCode === 0)
         store.showToast("Opened")
@@ -575,11 +744,13 @@ Item {
   Process {
     id: notifyProc
     running: false
+    environment: store.processPathEnv
   }
 
   Process {
     id: copyProc
     running: false
+    environment: store.processPathEnv
     onExited: function(exitCode, exitStatus) {
       if (exitCode === 0)
         store.showToast("Copied")
@@ -593,6 +764,7 @@ Item {
   Process {
     id: probeProc
     running: false
+    environment: store.processPathEnv
     stdout: SplitParser {
       splitMarker: ""
       onRead: function(chunk) {
@@ -601,7 +773,7 @@ Item {
         if (store.probeBuf.length > store.maxProbeBytes) {
           store.probeOverflow = true
           store.probeBuf = ""
-          store.lastError = "probe output exceeded " + store.maxProbeBytes + " bytes"
+          store.lastError = store.neutralizeUntrusted("probe output exceeded " + store.maxProbeBytes + " bytes", store.maxFieldChars)
           probeProc.running = false
         }
       }
@@ -611,7 +783,7 @@ Item {
         // keep last stderr snippet for debugging
         var s = String(line || "")
         if (s.length)
-          store.lastError = s
+          store.lastError = store.neutralizeUntrusted(s, store.maxFieldChars)
       }
     }
     onExited: function(exitCode, exitStatus) {
