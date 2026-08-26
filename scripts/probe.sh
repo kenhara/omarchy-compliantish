@@ -5,6 +5,7 @@
 # Always emits all five agent checks (HD, SL, AV, PW, AU) — enable flags live in the QML store / Checks menu.
 set -euo pipefail
 
+export PATH="/usr/bin:/bin"
 export LC_ALL=C
 readonly MAX_FIELD=512
 readonly MAX_PATH=4096

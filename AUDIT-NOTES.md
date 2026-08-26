@@ -1,5 +1,20 @@
 # Compliantish 0.5.1 — audit fix map
 
+## 0.5.21 security pass
+
+| ID | Severity | Fix |
+|----|----------|-----|
+| **HC-06** | HIGH | Cache write TOCTOU: replace bash `printf > last.json` with `load-cache.py --write` — mkdir 0700, exclusive `O_WRONLY|O_CREAT|O_EXCL|O_NOFOLLOW` tmp (0o600), write, fsync, `os.replace`. Never opens dest for write (symlink dest is replaced, not followed). |
+| **HC-07** | MED | `openConfig`: absolute local paths starting with `/` only; reject `://`, `\\`, leading `-`. Command `xdg-open -- path`. Else toast Open refused. |
+| **HC-08** | MED | `notify-send`: insert `--` before title/body; strip leading `-` from both. |
+| **HC-09** | MED | AutoText: neutralize at `applyPayload`/`loadDiskText` (clamp, strip tags + markdown images, enum status/code). `textFormat: Text.PlainText` on every probe/error/meta/toast/detail/label binding in Panel.qml and CheckRow.qml. PRE-SHIP.md matches reality. |
+| **HC-10** | MED | Re-clamp each string at ingest to probe caps (512 / path 4096). Bound `checks.length` (8). Drop oversize records. |
+| **HC-11** | LOW | `PATH=/usr/bin:/bin` in `probe.sh` and `Process.environment`. `load-cache.py` requires `O_NOFOLLOW`/`O_NONBLOCK` (fail closed), adds `O_CLOEXEC`. |
+
+Keeps: probes read-only (no sudo/`pacman -S` at runtime); `fixCommand` clipboard-only; HC-05 reads; KeyboardPanel; unofficial footer; unknown ≠ fail.
+
+
+
 ## 0.5.20 / HC-05
 
 | ID | Severity | Fix |

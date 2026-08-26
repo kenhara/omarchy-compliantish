@@ -87,6 +87,7 @@ Item {
           Text {
             width: parent.width
             text: root.label
+            textFormat: Text.PlainText
             color: root.contentForeground
             font.family: root.fontFamily
             font.pixelSize: Style.font.body
@@ -97,6 +98,7 @@ Item {
           Text {
             width: parent.width
             text: root.detail
+            textFormat: Text.PlainText
             color: root.contentForeground
             opacity: 0.45
             font.family: root.fontFamily
@@ -117,6 +119,7 @@ Item {
             id: statusLabel
             anchors.centerIn: parent
             text: root.status.toUpperCase()
+            textFormat: Text.PlainText
             color: root.statusColor
             font.family: root.fontFamily
             font.pixelSize: Style.font.caption
